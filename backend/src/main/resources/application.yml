@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: bandmong
+  profiles:
+    default: dev
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+  servlet:
+    multipart:
+      max-file-size: 30MB
+      max-request-size: 30MB
+
+server:
+  servlet:
+    session:
+      cookie:
+        same-site: lax
+
+bandmong:
+  # 개발용 로그인(POST /api/dev/login)을 켤지. dev 프로필에서만 true로 둡니다.
+  dev-login: false

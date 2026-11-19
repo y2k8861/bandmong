@@ -1,0 +1,16 @@
+# backend
+backend/.gradle/
+backend/build/
+backend/out/
+*.class
+# frontend
+frontend/node_modules/
+frontend/dist/
+# editor / os
+.idea/
+.vscode/
+*.iml
+.DS_Store
+# secrets
+.env
+*.env.local
