@@ -31,7 +31,7 @@ public abstract class ApiTestSupport {
     protected Person person(String nickname, String instrumentsJson) throws Exception {
         MockHttpSession s = (MockHttpSession) mvc.perform(post("/api/dev/login").with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"name\":\"" + UUID.randomUUID() + "\"}"))
+                        .content("{\"name\":\"" + UUID.randomUUID().toString().substring(0, 12) + "\"}"))
                 .andExpect(status().isOk())
                 .andReturn().getRequest().getSession(false);
         String body = "{\"nickname\":\"" + nickname + "\",\"instruments\":" + instrumentsJson + ",\"level\":\"HOBBY\"}";
