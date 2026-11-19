@@ -59,6 +59,15 @@ public abstract class ApiTestSupport {
         return mvc.perform(delete(url).session(p.session()).with(csrf()));
     }
 
+    /** 기대한 상태 코드가 아니면 응답 본문을 실패 메시지에 담는다 (CI 로그에서 원인을 바로 보이게) */
+    protected ResultActions expect(ResultActions r, int status) throws Exception {
+        var res = r.andReturn().getResponse();
+        org.assertj.core.api.Assertions.assertThat(res.getStatus())
+                .as("HTTP %s body=%s", res.getStatus(), res.getContentAsString())
+                .isEqualTo(status);
+        return r;
+    }
+
     protected JsonNode read(ResultActions r) throws Exception {
         return json.readTree(r.andReturn().getResponse().getContentAsString());
     }

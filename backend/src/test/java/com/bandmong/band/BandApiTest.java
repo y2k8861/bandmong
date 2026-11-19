@@ -20,7 +20,7 @@ class BandApiTest extends ApiTestSupport {
                 {"title":"%s","genre":"ROCK","area":"강남역 근처","schedule":"매주 금 20:00",
                  "intro":"퇴근 후 록 커버","hostInstrument":"GUITAR","seats":{"GUITAR":1,"BASS":1,"DRUM":1}}
                 """.formatted(title);
-        JsonNode band = read(post_(host, "/api/bands", body).andExpect(status().isCreated()));
+        JsonNode band = read(expect(post_(host, "/api/bands", body), 201));
         return band.get("id").asLong();
     }
 
