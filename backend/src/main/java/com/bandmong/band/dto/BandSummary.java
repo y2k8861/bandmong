@@ -1,6 +1,7 @@
 package com.bandmong.band.dto;
 
 import com.bandmong.band.Genre;
+import com.bandmong.jam.dto.JamBrief;
 import com.bandmong.user.Instrument;
 import com.bandmong.user.Level;
 
@@ -21,6 +22,8 @@ public record BandSummary(
         MyRelation me,
         Instrument myInstrument,
         /** 방장에게만: 답을 기다리는 지원 수 */
-        Integer pendingCount
+        Integer pendingCount,
+        /** 멤버에게만: 다음 합주 */
+        JamBrief nextJam
 ) {
 }
