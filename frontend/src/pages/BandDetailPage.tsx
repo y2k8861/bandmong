@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { acceptApp, applyBand, cancelApply, getBand, leaveBand, rejectApp, updateBand } from '../api/bands';
 import type { BandDetail, Instrument, Me, Seats } from '../api/types';
+import BandJams from '../components/BandJams';
 import SeatStepper from '../components/SeatStepper';
 import Sheet from '../components/Sheet';
 import { ago, genreName, openCount, seatError } from '../lib/band';
@@ -65,6 +66,8 @@ export default function BandDetailPage({ me }: { me: Me }) {
 
       <div className="body pad">
         {band.intro && <section className="card"><p className="intro">{band.intro}</p></section>}
+
+        {(band.me === 'HOST' || band.me === 'MEMBER') && <BandJams bandId={band.id} isHost={band.me === 'HOST'} />}
 
         <section className="card">
           <h2 className="section">자리 <span className="mono">{band.members.length}/{band.seats.reduce((a, s) => a + s.total, 0)}</span></h2>

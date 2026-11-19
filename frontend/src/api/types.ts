@@ -68,6 +68,7 @@ export interface BandSummary {
   me: Relation;
   myInstrument: Instrument | null;
   pendingCount: number | null;
+  nextJam: JamBrief | null;
 }
 
 export interface BandDetail {
@@ -85,6 +86,7 @@ export interface BandDetail {
   me: Relation;
   myApplication: ApplicationView | null;
   applications: ApplicationView[] | null;
+  nextJam: JamBrief | null;
 }
 
 export interface MyBands {
@@ -101,4 +103,60 @@ export interface BandCreateInput {
   intro: string;
   hostInstrument: Instrument;
   seats: Seats;
+}
+
+export type RsvpAnswer = 'YES' | 'LATE' | 'NO';
+
+export interface JamBrief {
+  id: number;
+  startsAt: string;
+  durationMinutes: number;
+  place: string | null;
+  myAnswer: RsvpAnswer | null;
+}
+
+export interface RsvpView {
+  userId: number;
+  nickname: string;
+  instrument: Instrument;
+  answer: RsvpAnswer | null;
+}
+
+export interface JamView {
+  id: number;
+  bandId: number;
+  bandTitle: string;
+  startsAt: string;
+  endsAt: string;
+  durationMinutes: number;
+  place: string | null;
+  memo: string | null;
+  status: 'SCHEDULED' | 'CANCELED';
+  over: boolean;
+  host: boolean;
+  counts: { yes: number; late: number; no: number; none: number };
+  myAnswer: RsvpAnswer | null;
+  answers: RsvpView[] | null;
+}
+
+export interface JamList {
+  upcoming: JamView[];
+  past: JamView[];
+}
+
+export interface AvailabilityView {
+  weekStart: string;
+  hours: number[];
+  mine: number[];
+  counts: Record<string, number>;
+  memberCount: number;
+  voters: { userId: number; nickname: string; voted: boolean }[];
+  best: { slot: number; startsAt: string; count: number; names: string[] }[];
+}
+
+export interface JamInput {
+  startsAt: string;
+  durationMinutes: number;
+  place: string;
+  memo: string;
 }

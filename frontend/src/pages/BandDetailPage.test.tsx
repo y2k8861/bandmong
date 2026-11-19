@@ -11,7 +11,7 @@ const base: BandDetail = {
   recruiting: true, createdAt: '2026-11-19T00:00:00Z',
   seats: [{ instrument: 'GUITAR', total: 1, filled: 1 }, { instrument: 'BASS', total: 1, filled: 0 }],
   members: [{ userId: 1, nickname: '기타방장', instrument: 'GUITAR', role: 'HOST', level: 'STAGE' }],
-  me: 'NONE', myApplication: null, applications: null,
+  me: 'NONE', myApplication: null, applications: null, nextJam: null,
 };
 
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status });
@@ -65,10 +65,12 @@ describe('밴드 상세', () => {
         { id: 22, userId: 9, nickname: '드럼비', userInstruments: ['DRUM'], level: 'BEGINNER', region: null, instrument: 'DRUM', message: null, status: 'PENDING', createdAt: '2026-11-19T00:00:00Z' },
       ],
     };
-    const fetchMock = vi.fn()
-      .mockResolvedValueOnce(json(host))
-      .mockResolvedValueOnce(json({ message: '베이스 빈자리가 방금 찼어요. 자리를 늘린 뒤 수락해 주세요' }, 409))
-      .mockResolvedValue(json(host));
+    // 주소별로 답하는 가짜 서버 (방장 화면은 합주 목록도 함께 불러온다)
+    const fetchMock = vi.fn(async (url: string) => {
+      if (url === '/api/bands/3/jams') return json({ upcoming: [], past: [] });
+      if (url.endsWith('/accept')) return json({ message: '베이스 빈자리가 방금 찼어요. 자리를 늘린 뒤 수락해 주세요' }, 409);
+      return json(host);
+    });
     vi.stubGlobal('fetch', fetchMock);
     renderAt();
 
@@ -79,7 +81,9 @@ describe('밴드 상세', () => {
 
     fireEvent.click(accepts[0]);
     expect(await screen.findByRole('status')).toHaveProperty('textContent', '베이스 빈자리가 방금 찼어요. 자리를 늘린 뒤 수락해 주세요');
-    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3)); // 실패 후 최신 상태 다시 읽기
-    expect((fetchMock.mock.calls[1] as [string])[0]).toBe('/api/bands/3/applications/21/accept');
+    const urls = () => fetchMock.mock.calls.map((c) => c[0] as string);
+    expect(urls()).toContain('/api/bands/3/applications/21/accept');
+    // 실패 후 최신 상태를 다시 읽는다
+    await waitFor(() => expect(urls().filter((u) => u === '/api/bands/3').length).toBe(2));
   });
 });

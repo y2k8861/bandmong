@@ -11,6 +11,8 @@ import ExplorePage from './pages/ExplorePage';
 import BandCreatePage from './pages/BandCreatePage';
 import BandDetailPage from './pages/BandDetailPage';
 import MePage from './pages/MePage';
+import SchedulePage from './pages/SchedulePage';
+import JamPage from './pages/JamPage';
 
 type Boot = { state: 'loading' } | { state: 'error'; message: string } | { state: 'ready'; providers: Providers; me: Me | null };
 
@@ -67,6 +69,8 @@ export default function App() {
             <Route path="/me" element={withTabs(<MePage me={me} onLogout={() => setMe(null)} />)} />
             <Route path="/bands/new" element={<BandCreatePage me={me} />} />
             <Route path="/bands/:id" element={<BandDetailPage me={me} />} />
+            <Route path="/bands/:id/schedule" element={<SchedulePage />} />
+            <Route path="/jams/:id" element={<JamPage />} />
           </>
         ) : null}
         <Route path="*" element={<Navigate to={home} replace />} />

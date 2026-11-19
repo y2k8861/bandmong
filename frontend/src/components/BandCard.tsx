@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import type { BandSummary } from '../api/types';
 import { genreName, openSeats } from '../lib/band';
 import { instrumentName, LEVELS } from '../lib/profile';
+import { answerName, dday, fmtDateTime } from '../lib/time';
 
 export default function BandCard({ band }: { band: BandSummary }) {
   const open = openSeats(band.seats);
@@ -18,6 +19,13 @@ export default function BandCard({ band }: { band: BandSummary }) {
         {band.schedule && ` · ${band.schedule}`}
         {band.level && ` · ${LEVELS.find((l) => l.id === band.level)?.name}`}
       </span>
+      {band.nextJam && (
+        <div className="next-jam">
+          <span className="dday">{dday(band.nextJam.startsAt)}</span>
+          <span>{fmtDateTime(band.nextJam.startsAt)}{band.nextJam.place ? ` · ${band.nextJam.place}` : ''}</span>
+          <span className={`my-ans ${band.nextJam.myAnswer ? band.nextJam.myAnswer.toLowerCase() : 'none'}`}>{answerName(band.nextJam.myAnswer)}</span>
+        </div>
+      )}
       <div className="row wrap">
         {band.myInstrument && (
           <span className="tag">{band.me === 'HOST' ? '방장 · ' : ''}{instrumentName(band.myInstrument)}</span>
