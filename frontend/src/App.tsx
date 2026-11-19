@@ -1,13 +1,20 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { getMe, getProviders } from './api/auth';
 import { ApiError } from './api/client';
 import type { Me, Providers } from './api/types';
+import TabBar from './components/TabBar';
 import LoginPage from './pages/LoginPage';
 import OnboardingPage from './pages/OnboardingPage';
-import HomePage from './pages/HomePage';
+import MyBandsPage from './pages/MyBandsPage';
+import ExplorePage from './pages/ExplorePage';
+import BandCreatePage from './pages/BandCreatePage';
+import BandDetailPage from './pages/BandDetailPage';
+import MePage from './pages/MePage';
 
 type Boot = { state: 'loading' } | { state: 'error'; message: string } | { state: 'ready'; providers: Providers; me: Me | null };
+
+const withTabs = (page: ReactNode) => <>{page}<TabBar /></>;
 
 export default function App() {
   const [boot, setBoot] = useState<Boot>({ state: 'loading' });
@@ -53,7 +60,15 @@ export default function App() {
       <Routes>
         <Route path="/login" element={me ? <Navigate to={home} replace /> : <LoginPage providers={providers} onLogin={setMe} />} />
         <Route path="/onboarding" element={!me ? <Navigate to="/login" replace /> : <OnboardingPage me={me} onSaved={setMe} />} />
-        <Route path="/" element={me?.onboarded ? <HomePage me={me} onLogout={() => setMe(null)} /> : <Navigate to={home} replace />} />
+        {me?.onboarded ? (
+          <>
+            <Route path="/" element={withTabs(<MyBandsPage me={me} />)} />
+            <Route path="/explore" element={withTabs(<ExplorePage me={me} />)} />
+            <Route path="/me" element={withTabs(<MePage me={me} onLogout={() => setMe(null)} />)} />
+            <Route path="/bands/new" element={<BandCreatePage me={me} />} />
+            <Route path="/bands/:id" element={<BandDetailPage me={me} />} />
+          </>
+        ) : null}
         <Route path="*" element={<Navigate to={home} replace />} />
       </Routes>
     </div>
