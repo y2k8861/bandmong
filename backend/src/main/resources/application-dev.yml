@@ -1,7 +1,7 @@
 # 로컬 개발: 메모리 DB(H2)와 개발용 로그인. 서버를 끄면 데이터가 사라집니다.
 spring:
   datasource:
-    url: jdbc:h2:mem:bandmong;MODE=MySQL;DB_CLOSE_DELAY=-1
+    url: jdbc:h2:mem:bandmong;MODE=MySQL;DB_CLOSE_DELAY=-1;LOCK_TIMEOUT=10000
     username: sa
     password:
   jpa:
