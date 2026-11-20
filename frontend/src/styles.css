@@ -238,3 +238,26 @@ a.btn-ghost { color: var(--ink); }
 .noti .txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; font-size: 14px; }
 .noti .when { font-size: 11px; color: var(--faint); }
 .noti .dot { width: 8px; height: 8px; border-radius: 4px; background: var(--err); margin-top: 6px; flex: none; }
+
+/* ── 5단계: 합주실·정산·회비 ── */
+.studio { gap: 8px; }
+.studio .t { font-size: 16px; }
+.room { display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); text-align: left; }
+.room-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; font-size: 14px; }
+.room-price { flex: none; font-family: var(--mono); font-size: 14px; font-weight: 500; text-align: right; display: flex; flex-direction: column; }
+.chip.date { height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; padding: 0 12px; }
+.chip.date span { font-size: 11px; } .chip.date b { font-size: 15px; font-family: var(--mono); }
+.slot-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.slot-btn { height: 52px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; padding: 0; }
+.slot-btn b { font-family: var(--mono); font-size: 13px; font-weight: 500; }
+.slot-btn span { font-size: 11px; color: var(--mute); }
+.slot-btn.pick { background: var(--amber); border-color: var(--amber); }
+.slot-btn.pick span { color: var(--ink); }
+.slot-btn:disabled { background: var(--paper); color: var(--faint); cursor: not-allowed; }
+.slot-btn:disabled span { color: var(--faint); }
+.booking { display: flex; flex-direction: column; gap: 6px; padding-top: 10px; border-top: 1px solid var(--line); }
+.settle-row { display: flex; flex-direction: column; gap: 6px; }
+.settle { height: 32px; padding: 0 10px; border-radius: 16px; border: 1px dashed var(--line2); background: var(--card); font-size: 13px; }
+.settle.paid { border: 1px solid var(--ok); background: #DDF3E9; color: var(--ok); font-weight: 700; }
+.settle:disabled { cursor: default; opacity: 1; }
+a.btn-dark.wide { height: 46px; border-radius: 12px; }

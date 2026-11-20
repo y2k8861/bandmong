@@ -14,6 +14,7 @@ import MePage from './pages/MePage';
 import SchedulePage from './pages/SchedulePage';
 import JamPage from './pages/JamPage';
 import ChatPage from './pages/ChatPage';
+import StudioPage from './pages/StudioPage';
 import NotificationsPage from './pages/NotificationsPage';
 import { StreamProvider } from './lib/stream';
 
@@ -75,6 +76,7 @@ export default function App() {
             <Route path="/bands/:id/schedule" element={<SchedulePage />} />
             <Route path="/jams/:id" element={<JamPage />} />
             <Route path="/bands/:id/chat" element={<ChatPage me={me} />} />
+            <Route path="/bands/:id/studio" element={<StudioPage />} />
             <Route path="/notifications" element={withTabs(<NotificationsPage />)} />
           </>
         ) : null}

@@ -5,7 +5,7 @@ import type { JamView, RsvpAnswer } from '../api/types';
 import JamFormSheet from '../components/JamFormSheet';
 import Sheet from '../components/Sheet';
 import { instrumentName } from '../lib/profile';
-import { ANSWERS, answerName, dday, fmtDateTime, fmtTime } from '../lib/time';
+import { ANSWERS, answerName, dday, fmtDateTime, fmtTime, toKstInput } from '../lib/time';
 import { useLoad } from '../lib/useLoad';
 
 export default function JamPage() {
@@ -90,6 +90,11 @@ export default function JamPage() {
           })}
         </section>
 
+        {jam.host && !locked && (() => {
+          const k = toKstInput(jam.startsAt);
+          const q = `date=${k.date}&hour=${Number(k.time.slice(0, 2))}&hours=${Math.max(1, Math.round(jam.durationMinutes / 60))}&jam=${jam.id}`;
+          return <Link className="btn-dark wide" to={`/bands/${jam.bandId}/studio?${q}`}>이 시간으로 합주실 잡기</Link>;
+        })()}
         {jam.host && !locked && (
           <button className="btn-ghost wide danger-text" onClick={() => setSheet('cancel')}>합주 취소</button>
         )}

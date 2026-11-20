@@ -68,6 +68,8 @@ describe('밴드 상세', () => {
     // 주소별로 답하는 가짜 서버 (방장 화면은 합주 목록도 함께 불러온다)
     const fetchMock = vi.fn(async (url: string) => {
       if (url === '/api/bands/3/jams') return json({ upcoming: [], past: [] });
+      if (url === '/api/bands/3/bookings') return json([]);
+      if (url.startsWith('/api/bands/3/dues')) return json({ month: '2026-11', amount: null, account: null, host: true, paidCount: 0, total: 1, members: [] });
       if (url.endsWith('/accept')) return json({ message: '베이스 빈자리가 방금 찼어요. 자리를 늘린 뒤 수락해 주세요' }, 409);
       return json(host);
     });

@@ -199,3 +199,23 @@ export interface NotificationPage {
   hasMore: boolean;
   unread: number;
 }
+
+export interface RoomView { id: number; name: string; capacity: number; pricePerHour: number; gear: string | null }
+export interface StudioView {
+  id: number; name: string; area: string; station: string | null; openHour: number; closeHour: number;
+  lateDiscount: boolean; perks: string[]; rooms: RoomView[];
+}
+export interface SlotsView {
+  roomId: number; studioName: string; roomName: string; date: string;
+  slots: { hour: number; startsAt: string; price: number; taken: boolean; past: boolean }[];
+}
+export interface SettleView { userId: number; nickname: string; amount: number; paid: boolean }
+export interface BookingView {
+  id: number; bandId: number; studioName: string; roomName: string; area: string; station: string | null;
+  startsAt: string; endsAt: string; hours: number; price: number; perPerson: number; status: 'CONFIRMED' | 'CANCELED';
+  jamId: number | null; host: boolean; settles: SettleView[]; paidCount: number; mine: SettleView | null;
+}
+export interface DuesView {
+  month: string; amount: number | null; account: string | null; host: boolean; paidCount: number; total: number;
+  members: { userId: number; nickname: string; paid: boolean; paidAt: string | null }[];
+}
