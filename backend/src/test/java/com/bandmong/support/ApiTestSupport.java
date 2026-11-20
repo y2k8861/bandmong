@@ -79,12 +79,13 @@ public abstract class ApiTestSupport {
     protected ResultActions expect(ResultActions r, int status) throws Exception {
         var res = r.andReturn().getResponse();
         org.assertj.core.api.Assertions.assertThat(res.getStatus())
-                .as("HTTP %s body=%s", res.getStatus(), res.getContentAsString())
+                .as("HTTP %s body=%s", res.getStatus(), res.getContentAsString(java.nio.charset.StandardCharsets.UTF_8))
                 .isEqualTo(status);
         return r;
     }
 
     protected JsonNode read(ResultActions r) throws Exception {
-        return json.readTree(r.andReturn().getResponse().getContentAsString());
+        // 응답 헤더에 charset이 없으면 MockMvc는 ISO-8859-1로 읽어 한글이 깨진다
+        return json.readTree(r.andReturn().getResponse().getContentAsString(java.nio.charset.StandardCharsets.UTF_8));
     }
 }

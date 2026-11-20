@@ -37,7 +37,7 @@ class StreamApiTest extends ApiTestSupport {
         expect(post_(bass, "/api/bands/" + bandId + "/messages", "{\"body\":\"실시간 확인\"}"), 200);
         expect(delete_(bass, "/api/bands/" + bandId + "/members/me"), 204);
 
-        String body = stream.getResponse().getContentAsString();
+        String body = stream.getResponse().getContentAsString(java.nio.charset.StandardCharsets.UTF_8);
         assertThat(body).contains("event:ready");
         assertThat(body).contains("event:message").contains("실시간 확인");
         assertThat(body).contains("event:notification").contains("MEMBER_LEFT");
@@ -60,7 +60,7 @@ class StreamApiTest extends ApiTestSupport {
                 .andExpect(request().asyncStarted()).andReturn();
         expect(post_(host, "/api/bands/" + bandId + "/applications/" + appId + "/accept", null), 409);
 
-        String body = stream.getResponse().getContentAsString();
+        String body = stream.getResponse().getContentAsString(java.nio.charset.StandardCharsets.UTF_8);
         assertThat(body).contains("event:ready");
         assertThat(body).doesNotContain("event:notification");
         assertThat(read(get_(bass2, "/api/notifications")).get("items")).isEmpty();
