@@ -69,6 +69,7 @@ export interface BandSummary {
   myInstrument: Instrument | null;
   pendingCount: number | null;
   nextJam: JamBrief | null;
+  unreadMessages: number | null;
 }
 
 export interface BandDetail {
@@ -87,6 +88,7 @@ export interface BandDetail {
   myApplication: ApplicationView | null;
   applications: ApplicationView[] | null;
   nextJam: JamBrief | null;
+  unreadMessages: number | null;
 }
 
 export interface MyBands {
@@ -159,4 +161,41 @@ export interface JamInput {
   durationMinutes: number;
   place: string;
   memo: string;
+}
+
+export interface MessageView {
+  id: number;
+  bandId: number;
+  type: 'TEXT' | 'SYSTEM';
+  senderId: number | null;
+  senderNickname: string | null;
+  body: string;
+  createdAt: string;
+  clientId: string | null;
+}
+
+export interface MessagePage {
+  messages: MessageView[];
+  hasMore: boolean;
+  lastReadId: number | null;
+}
+
+export type NotificationType =
+  | 'APPLICATION_RECEIVED' | 'APPLICATION_ACCEPTED' | 'APPLICATION_REJECTED' | 'MEMBER_LEFT'
+  | 'JAM_SCHEDULED' | 'JAM_MOVED' | 'JAM_EDITED' | 'JAM_CANCELED';
+
+export interface NotificationView {
+  id: number;
+  type: NotificationType;
+  title: string;
+  body: string | null;
+  link: string | null;
+  read: boolean;
+  createdAt: string;
+}
+
+export interface NotificationPage {
+  items: NotificationView[];
+  hasMore: boolean;
+  unread: number;
 }

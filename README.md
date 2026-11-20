@@ -13,6 +13,7 @@
 | DB | 로컬 H2(메모리) / 운영 MySQL |
 | 프론트 | React 18, TypeScript, Vite, React Router |
 | 테스트 | JUnit 5 + MockMvc, Vitest + Testing Library |
+| 실시간 | SSE(Server-Sent Events) — 채팅·알림 |
 | CI | GitHub Actions (push마다 백엔드·프론트 테스트와 빌드) |
 
 ## 폴더 구조
@@ -49,6 +50,6 @@ npm run dev
 - [x] **1단계** 프로젝트 뼈대, 로그인(개발용 + 카카오·네이버·구글 준비), 프로필 설정 — [설계 기록](docs/stage-01.md)
 - [x] **2단계** 밴드 만들기·찾기·지원, 방장 수락/거절, 마지막 자리 동시 수락 방지 — [설계 기록](docs/stage-02.md)
 - [x] **3단계** 가능 시간 투표, 합주 확정·변경·취소, 참석 응답 — [설계 기록](docs/stage-03.md)
-- [ ] 4단계 밴드 채팅·알림
+- [x] **4단계** 밴드 채팅, 알림, 실시간 연결(SSE) — [설계 기록](docs/stage-04.md)
 - [ ] 5단계 합주실 예약·회비 정산, 공연 준비
 - [ ] 6단계 신고·운영, 배포

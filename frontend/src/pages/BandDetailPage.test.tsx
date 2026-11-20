@@ -11,7 +11,7 @@ const base: BandDetail = {
   recruiting: true, createdAt: '2026-11-19T00:00:00Z',
   seats: [{ instrument: 'GUITAR', total: 1, filled: 1 }, { instrument: 'BASS', total: 1, filled: 0 }],
   members: [{ userId: 1, nickname: '기타방장', instrument: 'GUITAR', role: 'HOST', level: 'STAGE' }],
-  me: 'NONE', myApplication: null, applications: null, nextJam: null,
+  me: 'NONE', myApplication: null, applications: null, nextJam: null, unreadMessages: null,
 };
 
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status });

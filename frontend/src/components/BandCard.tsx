@@ -12,6 +12,7 @@ export default function BandCard({ band }: { band: BandSummary }) {
         <span className="genre">{genreName(band.genre)}</span>
         {band.me === 'HOST' && (band.pendingCount ?? 0) > 0 && <span className="badge">지원 {band.pendingCount}</span>}
         {band.me === 'PENDING' && <span className="badge soft">답 기다리는 중</span>}
+        {(band.unreadMessages ?? 0) > 0 && <span className="badge chat">새 메시지 {band.unreadMessages}</span>}
       </div>
       <b className="t">{band.title}</b>
       <span className="sub">

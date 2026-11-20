@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { acceptApp, applyBand, cancelApply, getBand, leaveBand, rejectApp, updateBand } from '../api/bands';
 import type { BandDetail, Instrument, Me, Seats } from '../api/types';
 import BandJams from '../components/BandJams';
@@ -66,6 +66,13 @@ export default function BandDetailPage({ me }: { me: Me }) {
 
       <div className="body pad">
         {band.intro && <section className="card"><p className="intro">{band.intro}</p></section>}
+
+        {(band.me === 'HOST' || band.me === 'MEMBER') && (
+          <Link to={`/bands/${band.id}/chat`} className="card chat-link">
+            <span><b>밴드 채팅</b><span className="sub">멤버끼리 이야기해요</span></span>
+            {(band.unreadMessages ?? 0) > 0 ? <span className="badge chat">새 메시지 {band.unreadMessages}</span> : <span className="sub">열기 →</span>}
+          </Link>
+        )}
 
         {(band.me === 'HOST' || band.me === 'MEMBER') && <BandJams bandId={band.id} isHost={band.me === 'HOST'} />}
 

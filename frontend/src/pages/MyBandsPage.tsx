@@ -3,9 +3,14 @@ import { myBands } from '../api/bands';
 import type { Me } from '../api/types';
 import BandCard from '../components/BandCard';
 import { useLoad } from '../lib/useLoad';
+import { useStreamEvent } from '../lib/stream';
 
 export default function MyBandsPage({ me }: { me: Me }) {
   const { data, error, loading, reload } = useLoad(myBands, []);
+  // 새 메시지·알림(수락, 합주 확정 등)이 오면 카드 숫자를 새로 읽는다
+  useStreamEvent('message', () => { reload(); });
+  useStreamEvent('notification', () => { reload(); });
+  useStreamEvent('reconnect', () => { reload(); });
 
   return (
     <main className="scr">

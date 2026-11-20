@@ -13,6 +13,9 @@ import BandDetailPage from './pages/BandDetailPage';
 import MePage from './pages/MePage';
 import SchedulePage from './pages/SchedulePage';
 import JamPage from './pages/JamPage';
+import ChatPage from './pages/ChatPage';
+import NotificationsPage from './pages/NotificationsPage';
+import { StreamProvider } from './lib/stream';
 
 type Boot = { state: 'loading' } | { state: 'error'; message: string } | { state: 'ready'; providers: Providers; me: Me | null };
 
@@ -57,7 +60,7 @@ export default function App() {
   const setMe = (next: Me | null) => setBoot({ state: 'ready', providers, me: next });
   const home = !me ? '/login' : me.onboarded ? '/' : '/onboarding';
 
-  return (
+  const app = (
     <div className="app">
       <Routes>
         <Route path="/login" element={me ? <Navigate to={home} replace /> : <LoginPage providers={providers} onLogin={setMe} />} />
@@ -71,10 +74,14 @@ export default function App() {
             <Route path="/bands/:id" element={<BandDetailPage me={me} />} />
             <Route path="/bands/:id/schedule" element={<SchedulePage />} />
             <Route path="/jams/:id" element={<JamPage />} />
+            <Route path="/bands/:id/chat" element={<ChatPage me={me} />} />
+            <Route path="/notifications" element={withTabs(<NotificationsPage />)} />
           </>
         ) : null}
         <Route path="*" element={<Navigate to={home} replace />} />
       </Routes>
     </div>
   );
+  // 로그인하고 온보딩까지 마친 사람만 실시간 연결을 연다
+  return me?.onboarded ? <StreamProvider key={me.id}>{app}</StreamProvider> : app;
 }
