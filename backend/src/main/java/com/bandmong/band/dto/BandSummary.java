@@ -24,6 +24,8 @@ public record BandSummary(
         /** 방장에게만: 답을 기다리는 지원 수 */
         Integer pendingCount,
         /** 멤버에게만: 다음 합주 */
-        JamBrief nextJam
+        JamBrief nextJam,
+        /** 멤버에게만: 안 읽은 채팅 수 */
+        Integer unreadMessages
 ) {
 }

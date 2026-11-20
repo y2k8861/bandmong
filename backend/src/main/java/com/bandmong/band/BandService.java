@@ -1,6 +1,9 @@
 package com.bandmong.band;
 
+import com.bandmong.activity.Events;
 import com.bandmong.band.dto.*;
+import com.bandmong.chat.ChatService;
+import org.springframework.context.ApplicationEventPublisher;
 import com.bandmong.jam.JamService;
 import com.bandmong.jam.dto.JamBrief;
 import com.bandmong.user.Instrument;
@@ -29,14 +32,19 @@ public class BandService {
     private final BandApplicationRepository applications;
     private final UserRepository users;
     private final JamService jams;
+    private final ChatService chat;
+    private final ApplicationEventPublisher events;
 
     public BandService(BandRepository bands, BandMemberRepository members,
-                       BandApplicationRepository applications, UserRepository users, JamService jams) {
+                       BandApplicationRepository applications, UserRepository users, JamService jams,
+                       ChatService chat, ApplicationEventPublisher events) {
         this.bands = bands;
         this.members = members;
         this.applications = applications;
         this.users = users;
         this.jams = jams;
+        this.chat = chat;
+        this.events = events;
     }
 
     // ───────── 만들기 · 설정 ─────────
@@ -87,7 +95,7 @@ public class BandService {
                 .filter(b -> genre == null || b.getGenre() == genre)
                 .filter(b -> q.isEmpty() || b.getArea().contains(q))
                 .map(b -> summary(b, byBand.getOrDefault(b.getId(), List.of()), userId,
-                        pending.contains(b.getId()), null, null))
+                        pending.contains(b.getId()), null, null, null))
                 .filter(s -> s.seats().stream().anyMatch(seat -> seat.open() > 0))
                 .filter(s -> instrument == null || s.seats().stream()
                         .anyMatch(seat -> seat.instrument() == instrument && seat.open() > 0))
@@ -103,11 +111,13 @@ public class BandService {
                 : applications.countByBandAndStatus(hostIds, PENDING).stream()
                 .collect(Collectors.toMap(r -> (Long) r[0], r -> (Long) r[1]));
 
-        Map<Long, JamBrief> next = jams.nextJams(mine.stream().map(Band::getId).toList(), userId);
+        List<Long> mineIds = mine.stream().map(Band::getId).toList();
+        Map<Long, JamBrief> next = jams.nextJams(mineIds, userId);
+        Map<Long, Integer> unread = chat.unreadCounts(userId, mineIds);
         List<BandSummary> bandsOut = mine.stream()
                 .map(b -> summary(b, byBand.get(b.getId()), userId, false,
                         b.isHost(userId) ? pendingCounts.getOrDefault(b.getId(), 0L).intValue() : null,
-                        next.get(b.getId())))
+                        next.get(b.getId()), unread.getOrDefault(b.getId(), 0)))
                 // 다음 합주가 가까운 밴드부터, 없으면 최근 가입 순
                 .sorted(Comparator.comparing((BandSummary x) -> x.nextJam() == null ? java.time.Instant.MAX : x.nextJam().startsAt()))
                 .toList();
@@ -116,7 +126,7 @@ public class BandService {
                 .map(BandApplication::getBand).toList();
         Map<Long, List<BandMember>> appliedMembers = membersByBand(applied);
         List<BandSummary> appliedOut = applied.stream()
-                .map(b -> summary(b, appliedMembers.getOrDefault(b.getId(), List.of()), userId, true, null, null))
+                .map(b -> summary(b, appliedMembers.getOrDefault(b.getId(), List.of()), userId, true, null, null, null))
                 .toList();
         return new MyBandsResponse(bandsOut, appliedOut);
     }
@@ -131,13 +141,14 @@ public class BandService {
                 ? applications.findByBandAndStatus(bandId, PENDING).stream().map(ApplicationView::of).toList()
                 : null;
 
-        JamBrief next = (rel == MyRelation.HOST || rel == MyRelation.MEMBER)
-                ? jams.nextJams(List.of(bandId), userId).get(bandId) : null;
+        boolean member = rel == MyRelation.HOST || rel == MyRelation.MEMBER;
+        JamBrief next = member ? jams.nextJams(List.of(bandId), userId).get(bandId) : null;
+        Integer unread = member ? chat.unreadCounts(userId, List.of(bandId)).getOrDefault(bandId, 0) : null;
 
         return new BandDetail(band.getId(), band.getTitle(), band.getGenre(), band.getLevel(), band.getArea(),
                 band.getSchedule(), band.getIntro(), band.isRecruiting(), band.getCreatedAt(),
                 seatViews(band, list), list.stream().map(MemberView::of).toList(), rel,
-                mine.map(ApplicationView::of).orElse(null), waiting, next);
+                mine.map(ApplicationView::of).orElse(null), waiting, next, unread);
     }
 
     // ───────── 지원 · 수락 · 거절 ─────────
@@ -162,6 +173,7 @@ public class BandService {
             throw conflict(r.instrument().label() + " 자리는 지금 비어 있지 않아요");
         }
         applications.save(new BandApplication(band, me, r.instrument(), blankToNull(r.message())));
+        events.publishEvent(new Events.ApplicationSubmitted(bandId, userId, r.instrument()));
         return detail(userId, bandId);
     }
 
@@ -189,13 +201,16 @@ public class BandService {
         }
         members.save(new BandMember(band, app.getUser(), app.getInstrument(), MemberRole.MEMBER));
         app.decide(ACCEPTED);
+        events.publishEvent(new Events.ApplicationDecided(bandId, app.getUser().getId(), app.getInstrument(), true));
         return detail(userId, bandId);
     }
 
     public BandDetail reject(Long userId, Long bandId, Long applicationId) {
         Band band = lockBand(bandId);
         requireHost(band, userId);
-        pendingApplication(bandId, applicationId).decide(REJECTED);
+        BandApplication app = pendingApplication(bandId, applicationId);
+        app.decide(REJECTED);
+        events.publishEvent(new Events.ApplicationDecided(bandId, app.getUser().getId(), app.getInstrument(), false));
         return detail(userId, bandId);
     }
 
@@ -207,6 +222,8 @@ public class BandService {
             throw conflict("방장은 아직 나갈 수 없어요. 방장 넘기기는 다음 업데이트에서 열려요");
         }
         members.delete(m);
+        members.flush();
+        events.publishEvent(new Events.MemberLeft(bandId, userId, m.getInstrument()));
     }
 
     // ───────── 내부 도우미 ─────────
@@ -281,12 +298,12 @@ public class BandService {
     }
 
     private static BandSummary summary(Band b, List<BandMember> list, Long userId, boolean pending, Integer pendingCount,
-                                       JamBrief nextJam) {
+                                       JamBrief nextJam, Integer unreadMessages) {
         Instrument myInst = list.stream().filter(m -> m.getUser().getId().equals(userId))
                 .map(BandMember::getInstrument).findFirst().orElse(null);
         return new BandSummary(b.getId(), b.getTitle(), b.getGenre(), b.getLevel(), b.getArea(), b.getSchedule(),
                 b.isRecruiting(), b.getHost().getNickname(), list.size(), seatViews(b, list),
-                relation(list, userId, pending), myInst, pendingCount, nextJam);
+                relation(list, userId, pending), myInst, pendingCount, nextJam, unreadMessages);
     }
 
     private static String blankToNull(String s) {

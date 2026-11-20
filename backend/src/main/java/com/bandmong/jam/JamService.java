@@ -1,6 +1,9 @@
 package com.bandmong.jam;
 
+import com.bandmong.activity.Events;
+import com.bandmong.activity.Events.JamChange;
 import com.bandmong.band.Band;
+import org.springframework.context.ApplicationEventPublisher;
 import com.bandmong.band.BandMember;
 import com.bandmong.band.BandMemberRepository;
 import com.bandmong.band.BandRepository;
@@ -35,9 +38,12 @@ public class JamService {
     private final JamRsvpRepository rsvps;
     private final AvailabilityRepository availabilities;
     private final Clock clock;
+    private final ApplicationEventPublisher events;
 
     public JamService(BandRepository bands, BandMemberRepository members, JamRepository jams,
-                      JamRsvpRepository rsvps, AvailabilityRepository availabilities, Clock clock) {
+                      JamRsvpRepository rsvps, AvailabilityRepository availabilities, Clock clock,
+                      ApplicationEventPublisher events) {
+        this.events = events;
         this.bands = bands;
         this.members = members;
         this.jams = jams;
@@ -119,6 +125,7 @@ public class JamService {
         User host = memberUser(list, userId);
         Jam jam = jams.save(new Jam(band, host, start, r.durationMinutes(), blankToNull(r.place()), blankToNull(r.memo())));
         rsvps.save(new JamRsvp(jam, host, RsvpAnswer.YES)); // 확정한 방장은 참석으로 시작
+        events.publishEvent(new Events.JamChanged(jam.getId(), userId, JamChange.SCHEDULED));
         return view(jam, list, userId, true);
     }
 
@@ -134,12 +141,16 @@ public class JamService {
         if (start != null || r.durationMinutes() != null) {
             checkOverlap(band.getId(), jamId, start == null ? jam.getStartsAt() : start, duration);
         }
+        var before = java.util.Arrays.asList(jam.getDurationMinutes(), jam.getPlace(), jam.getMemo());
         boolean moved = jam.reschedule(start, r.durationMinutes());
         jam.updateNote(r.place(), r.memo());
         if (moved) {
             // 다른 시간에 대한 대답이었으므로 응답을 비우고 다시 받는다
             rsvps.deleteByJam(jamId);
             rsvps.save(new JamRsvp(jam, memberUser(list, userId), RsvpAnswer.YES));
+            events.publishEvent(new Events.JamChanged(jamId, userId, JamChange.MOVED));
+        } else if (!before.equals(java.util.Arrays.asList(jam.getDurationMinutes(), jam.getPlace(), jam.getMemo()))) {
+            events.publishEvent(new Events.JamChanged(jamId, userId, JamChange.EDITED));
         }
         return view(jam, list, userId, true);
     }
@@ -149,6 +160,7 @@ public class JamService {
         if (!jam.getBand().isHost(userId)) throw forbidden("방장만 취소할 수 있어요");
         requireOpen(jam);
         jam.cancel();
+        events.publishEvent(new Events.JamChanged(jamId, userId, JamChange.CANCELED));
         return view(jam, members.findByBandWithUser(jam.getBand().getId()), userId, true);
     }
 

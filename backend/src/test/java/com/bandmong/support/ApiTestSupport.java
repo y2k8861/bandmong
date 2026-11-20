@@ -40,6 +40,22 @@ public abstract class ApiTestSupport {
         return new Person(s, me.get("id").asLong());
     }
 
+    /** 방장(기타)이 밴드를 만들고 member(베이스)를 받아 준다. 밴드 id를 돌려준다. */
+    protected long bandWithMember(Person host, Person member, String title) throws Exception {
+        long bandId = read(expect(post_(host, "/api/bands", """
+                {"title":"%s","genre":"ROCK","area":"합정","hostInstrument":"GUITAR","seats":{"GUITAR":1,"BASS":1,"DRUM":1}}
+                """.formatted(title)), 201)).get("id").asLong();
+        expect(post_(member, "/api/bands/" + bandId + "/applications", "{\"instrument\":\"BASS\"}"), 200);
+        long appId = read(get_(host, "/api/bands/" + bandId)).get("applications").get(0).get("id").asLong();
+        expect(post_(host, "/api/bands/" + bandId + "/applications/" + appId + "/accept", null), 200);
+        return bandId;
+    }
+
+    protected ResultActions put_(Person p, String url, String body) throws Exception {
+        return mvc.perform(put(url).session(p.session()).with(csrf())
+                .contentType(MediaType.APPLICATION_JSON).content(body));
+    }
+
     protected ResultActions get_(Person p, String url) throws Exception {
         return mvc.perform(get(url).session(p.session()));
     }

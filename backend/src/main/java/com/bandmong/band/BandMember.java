@@ -35,6 +35,10 @@ public class BandMember {
     @Column(name = "joined_at", nullable = false, updatable = false)
     private Instant joinedAt;
 
+    /** 채팅을 어디까지 읽었는지 (메시지 id). 이보다 큰 id가 안 읽은 메시지. */
+    @Column(name = "last_read_message_id")
+    private Long lastReadMessageId;
+
     protected BandMember() {
     }
 
@@ -50,6 +54,12 @@ public class BandMember {
         if (joinedAt == null) joinedAt = Instant.now();
     }
 
+    /** 뒤로 가지는 않는다 (다른 기기에서 늦게 도착한 읽음 표시가 앞선 기록을 덮지 않게) */
+    public void markRead(long messageId) {
+        if (lastReadMessageId == null || messageId > lastReadMessageId) lastReadMessageId = messageId;
+    }
+
+    public Long getLastReadMessageId() { return lastReadMessageId; }
     public Long getId() { return id; }
     public Band getBand() { return band; }
     public User getUser() { return user; }

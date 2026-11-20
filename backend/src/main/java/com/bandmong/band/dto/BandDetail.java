@@ -25,6 +25,8 @@ public record BandDetail(
         /** 방장에게만: 대기 중 지원 목록 */
         List<ApplicationView> applications,
         /** 멤버에게만: 다음 합주 */
-        JamBrief nextJam
+        JamBrief nextJam,
+        /** 멤버에게만: 안 읽은 채팅 수 */
+        Integer unreadMessages
 ) {
 }

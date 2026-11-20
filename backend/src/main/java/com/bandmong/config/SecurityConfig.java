@@ -1,6 +1,7 @@
 package com.bandmong.config;
 
 import com.bandmong.auth.OAuthLoginSuccessHandler;
+import jakarta.servlet.DispatcherType;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,6 +35,8 @@ public class SecurityConfig {
                         .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()))
                 .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
+                        // SSE 연결이 끝날 때 서버 안에서 다시 들어오는 비동기·오류 요청은 막지 않는다
+                        .dispatcherTypeMatchers(DispatcherType.ASYNC, DispatcherType.ERROR).permitAll()
                         .requestMatchers("/api/auth/**", "/api/time", "/api/dev/**").permitAll()
                         .requestMatchers("/oauth2/**", "/login/oauth2/**", "/error").permitAll()
                         .requestMatchers("/api/**").authenticated()
