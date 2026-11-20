@@ -5,6 +5,7 @@ import type { BandDetail, Instrument, Me, Seats } from '../api/types';
 import BandJams from '../components/BandJams';
 import BookingsCard from '../components/BookingsCard';
 import DuesCard from '../components/DuesCard';
+import GigsCard from '../components/GigsCard';
 import SeatStepper from '../components/SeatStepper';
 import Sheet from '../components/Sheet';
 import { ago, genreName, openCount, seatError } from '../lib/band';
@@ -80,6 +81,7 @@ export default function BandDetailPage({ me }: { me: Me }) {
           <>
             <BandJams bandId={band.id} isHost={band.me === 'HOST'} />
             <BookingsCard bandId={band.id} isHost={band.me === 'HOST'} />
+            <GigsCard bandId={band.id} isHost={band.me === 'HOST'} />
             <DuesCard bandId={band.id} myId={me.id} />
           </>
         )}

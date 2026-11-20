@@ -261,3 +261,28 @@ a.btn-ghost { color: var(--ink); }
 .settle.paid { border: 1px solid var(--ok); background: #DDF3E9; color: var(--ok); font-weight: 700; }
 .settle:disabled { cursor: default; opacity: 1; }
 a.btn-dark.wide { height: 46px; border-radius: 12px; }
+
+/* ── 5-2: 공연 ── */
+.dark-head { background: var(--ink); color: #fff; border-bottom: none; }
+.dark-head .sub { color: var(--line2); }
+.btn-ghost.on-dark { color: #fff; border-color: #3A3E48; }
+.timebar { height: 8px; border-radius: 4px; background: #2C3038; overflow: hidden; }
+.timebar span { display: block; height: 100%; background: var(--amber); border-radius: 4px; }
+.timebar.over span { background: #FF7A66; }
+.cue { list-style: none; margin: 0; padding: 0; }
+.cue-row { display: flex; align-items: center; gap: 10px; min-height: 52px; padding-block: 8px; border-top: 1px solid var(--line); }
+.cue-row .at { width: 44px; flex: none; font-size: 13px; }
+.cue-row.mc { color: var(--mute); }
+.cue-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; font-size: 14px; }
+.cue-ctl { display: flex; gap: 4px; flex: none; }
+.cue-ctl button { width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--line2); background: var(--card); font-size: 13px; padding: 0; }
+.cue-ctl button:disabled { opacity: .35; }
+.cue-ctl .del { color: var(--err); border-color: #F3C3BC; }
+.checks { list-style: none; margin: 0; padding: 0; }
+.checks li { display: flex; align-items: center; gap: 8px; min-height: 44px; border-top: 1px solid var(--line); }
+.checks label { flex: 1; display: flex; align-items: center; gap: 10px; font-size: 14px; }
+.checks input { width: 20px; height: 20px; accent-color: var(--ok); flex: none; }
+.checks label.done > span { text-decoration: line-through; color: var(--mute); }
+.checks .x { background: none; border: none; color: var(--faint); font-size: 13px; padding: 6px; }
+.bar.col .row { gap: 8px; }
+.bar.col .row .cta { flex: 1; }

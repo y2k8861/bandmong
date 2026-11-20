@@ -219,3 +219,11 @@ export interface DuesView {
   month: string; amount: number | null; account: string | null; host: boolean; paidCount: number; total: number;
   members: { userId: number; nickname: string; paid: boolean; paidAt: string | null }[];
 }
+
+export type CueType = 'SONG' | 'MC';
+export interface CueItem { id?: number; type: CueType; title: string; durationSec: number }
+export interface GigView {
+  id: number; bandId: number; bandTitle: string; title: string; startsAt: string; venue: string | null; slotMinutes: number;
+  status: 'SCHEDULED' | 'CANCELED'; version: number; host: boolean; totalSec: number;
+  items: CueItem[]; checks: { id: number; text: string; done: boolean; doneBy: string | null }[]; doneCount: number;
+}
