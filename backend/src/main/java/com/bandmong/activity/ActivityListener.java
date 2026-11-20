@@ -11,6 +11,9 @@ import com.bandmong.jam.Jam;
 import com.bandmong.jam.JamRepository;
 import com.bandmong.notification.NotificationService;
 import com.bandmong.notification.NotificationType;
+import com.bandmong.studio.Booking;
+import com.bandmong.studio.BookingRepository;
+import java.text.NumberFormat;
 import com.bandmong.user.User;
 import com.bandmong.user.UserRepository;
 import org.springframework.context.event.EventListener;
@@ -32,6 +35,7 @@ public class ActivityListener {
 
     static final DateTimeFormatter WHEN = DateTimeFormatter.ofPattern("M월 d일 (E) HH:mm", Locale.KOREAN)
             .withZone(TimeConfig.KST);
+    static final DateTimeFormatter END = DateTimeFormatter.ofPattern("HH:mm").withZone(TimeConfig.KST);
 
     private final BandRepository bands;
     private final BandMemberRepository members;
@@ -39,9 +43,12 @@ public class ActivityListener {
     private final JamRepository jams;
     private final ChatService chat;
     private final NotificationService notifications;
+    private final BookingRepository bookings;
 
     public ActivityListener(BandRepository bands, BandMemberRepository members, UserRepository users,
-                            JamRepository jams, ChatService chat, NotificationService notifications) {
+                            JamRepository jams, ChatService chat, NotificationService notifications,
+                            BookingRepository bookings) {
+        this.bookings = bookings;
         this.bands = bands;
         this.members = members;
         this.users = users;
@@ -85,6 +92,26 @@ public class ActivityListener {
         notifications.notify(List.of(band.getHost()), NotificationType.MEMBER_LEFT,
                 who.getNickname() + "님이 나갔어요", "'" + band.getTitle() + "' " + e.instrument().label() + " 자리가 비었어요",
                 "/bands/" + band.getId());
+    }
+
+    @EventListener
+    public void on(BookingChanged e) {
+        Booking b = bookings.findById(e.bookingId()).orElseThrow();
+        Band band = b.getBand();
+        String place = b.getRoom().getStudio().getName() + " " + b.getRoom().getName();
+        String when = WHEN.format(b.getStartsAt()) + "–" + END.format(b.endsAt());
+        List<User> others = members.findByBandWithUser(band.getId()).stream()
+                .map(BandMember::getUser).filter(u -> !u.getId().equals(e.actorId())).toList();
+        if (e.confirmed()) {
+            String share = "1인 " + NumberFormat.getIntegerInstance(Locale.KOREA).format(b.getPerPerson()) + "원";
+            chat.system(band, "합주실을 예약했어요 · " + place + " · " + when + " · " + share);
+            notifications.notify(others, NotificationType.BOOKING_CONFIRMED, "합주실이 예약됐어요",
+                    place + " · " + when + " · " + share + " 정산해 주세요", "/bands/" + band.getId());
+        } else {
+            chat.system(band, "합주실 예약을 취소했어요 · " + place + " · " + when);
+            notifications.notify(others, NotificationType.BOOKING_CANCELED, "합주실 예약이 취소됐어요",
+                    place + " · " + when, "/bands/" + band.getId());
+        }
     }
 
     @EventListener

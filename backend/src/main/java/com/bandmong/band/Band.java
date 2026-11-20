@@ -63,6 +63,14 @@ public class Band {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
+    /** 월 회비 (원). null이면 회비 없음. */
+    @Column(name = "dues_amount")
+    private Integer duesAmount;
+
+    /** 회비 받을 계좌·송금 안내 */
+    @Column(name = "dues_account", length = 60)
+    private String duesAccount;
+
     protected Band() {
     }
 
@@ -108,6 +116,13 @@ public class Band {
         if (recruiting != null) this.recruiting = recruiting;
     }
 
+    public void setDues(Integer amount, String account) {
+        this.duesAmount = amount == null || amount <= 0 ? null : amount;
+        this.duesAccount = account == null || account.isBlank() ? null : account.trim();
+    }
+
+    public Integer getDuesAmount() { return duesAmount; }
+    public String getDuesAccount() { return duesAccount; }
     public Long getId() { return id; }
     public String getTitle() { return title; }
     public Genre getGenre() { return genre; }

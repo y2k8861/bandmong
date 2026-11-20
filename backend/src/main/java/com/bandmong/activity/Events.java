@@ -24,4 +24,8 @@ public final class Events {
 
     public record JamChanged(Long jamId, Long actorId, JamChange change) {
     }
+
+    /** 합주실 예약 확정(true) / 취소(false) */
+    public record BookingChanged(Long bookingId, Long actorId, boolean confirmed) {
+    }
 }
