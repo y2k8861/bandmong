@@ -9,7 +9,7 @@ import java.time.Instant;
 /** 이 달 회비를 냈다는 기록. 안 낸 사람은 행이 없다. */
 @Entity
 @Table(name = "dues_payments",
-        uniqueConstraints = @UniqueConstraint(name = "uk_dues", columnNames = {"band_id", "user_id", "month"}))
+        uniqueConstraints = @UniqueConstraint(name = "uk_dues", columnNames = {"band_id", "user_id", "due_month"}))
 public class DuesPayment {
 
     @Id
@@ -24,8 +24,8 @@ public class DuesPayment {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    /** YYYY-MM */
-    @Column(nullable = false, length = 7)
+    /** YYYY-MM. 컬럼 이름이 month면 H2·일부 DB 예약어와 부딪혀서 due_month로 둔다. */
+    @Column(name = "due_month", nullable = false, length = 7)
     private String month;
 
     /** 그때 회비 금액 (나중에 회비가 바뀌어도 그 달 기록은 그대로) */
