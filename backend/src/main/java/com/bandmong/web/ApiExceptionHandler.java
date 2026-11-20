@@ -28,6 +28,12 @@ public class ApiExceptionHandler {
         return ResponseEntity.badRequest().body(Map.of("message", msg));
     }
 
+    /** @Version 충돌: 확인과 저장 사이에 다른 사람이 먼저 고쳤다 */
+    @ExceptionHandler(org.springframework.orm.ObjectOptimisticLockingFailureException.class)
+    public ResponseEntity<Map<String, String>> stale(org.springframework.orm.ObjectOptimisticLockingFailureException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", com.bandmong.gig.GigService.STALE));
+    }
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<Map<String, String>> unreadable(HttpMessageNotReadableException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "요청 형식이 올바르지 않아요"));

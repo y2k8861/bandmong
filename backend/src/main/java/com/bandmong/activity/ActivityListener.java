@@ -11,6 +11,8 @@ import com.bandmong.jam.Jam;
 import com.bandmong.jam.JamRepository;
 import com.bandmong.notification.NotificationService;
 import com.bandmong.notification.NotificationType;
+import com.bandmong.gig.Gig;
+import com.bandmong.gig.GigRepository;
 import com.bandmong.studio.Booking;
 import com.bandmong.studio.BookingRepository;
 import java.text.NumberFormat;
@@ -44,11 +46,13 @@ public class ActivityListener {
     private final ChatService chat;
     private final NotificationService notifications;
     private final BookingRepository bookings;
+    private final GigRepository gigs;
 
     public ActivityListener(BandRepository bands, BandMemberRepository members, UserRepository users,
                             JamRepository jams, ChatService chat, NotificationService notifications,
-                            BookingRepository bookings) {
+                            BookingRepository bookings, GigRepository gigs) {
         this.bookings = bookings;
+        this.gigs = gigs;
         this.bands = bands;
         this.members = members;
         this.users = users;
@@ -92,6 +96,19 @@ public class ActivityListener {
         notifications.notify(List.of(band.getHost()), NotificationType.MEMBER_LEFT,
                 who.getNickname() + "님이 나갔어요", "'" + band.getTitle() + "' " + e.instrument().label() + " 자리가 비었어요",
                 "/bands/" + band.getId());
+    }
+
+    @EventListener
+    public void on(GigScheduled e) {
+        Gig g = gigs.findById(e.gigId()).orElseThrow();
+        Band band = g.getBand();
+        String when = WHEN.format(g.getStartsAt()) + (g.getVenue() == null ? "" : " · " + g.getVenue());
+        List<User> others = members.findByBandWithUser(band.getId()).stream()
+                .map(BandMember::getUser).filter(u -> !u.getId().equals(e.actorId())).toList();
+        chat.system(band, "공연이 잡혔어요 · " + g.getTitle() + " · " + when);
+        notifications.notify(others, NotificationType.GIG_SCHEDULED, "공연이 잡혔어요",
+                "'" + band.getTitle() + "' " + g.getTitle() + " · " + when + " · 큐시트를 같이 채워 주세요",
+                "/gigs/" + g.getId());
     }
 
     @EventListener

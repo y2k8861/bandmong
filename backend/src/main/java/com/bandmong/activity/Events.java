@@ -28,4 +28,7 @@ public final class Events {
     /** 합주실 예약 확정(true) / 취소(false) */
     public record BookingChanged(Long bookingId, Long actorId, boolean confirmed) {
     }
+
+    public record GigScheduled(Long gigId, Long actorId) {
+    }
 }
