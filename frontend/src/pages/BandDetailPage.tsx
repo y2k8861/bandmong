@@ -8,6 +8,8 @@ import DuesCard from '../components/DuesCard';
 import GigsCard from '../components/GigsCard';
 import SeatStepper from '../components/SeatStepper';
 import Sheet from '../components/Sheet';
+import ReportSheet from '../components/ReportSheet';
+import { transferHost } from '../api/moderation';
 import { ago, genreName, openCount, seatError } from '../lib/band';
 import { LEVELS, instrumentName } from '../lib/profile';
 import { useLoad } from '../lib/useLoad';
@@ -18,7 +20,9 @@ export default function BandDetailPage({ me }: { me: Me }) {
   const id = Number(useParams().id);
   const nav = useNavigate();
   const { data: band, setData, error, loading, reload } = useLoad(() => getBand(id), [id]);
-  const [sheet, setSheet] = useState<null | 'apply' | 'seats' | 'leave'>(null);
+  const [sheet, setSheet] = useState<null | 'apply' | 'seats' | 'leave' | 'report'>(null);
+  const [member, setMember] = useState<{ userId: number; nickname: string } | null>(null);
+  const [reportUser, setReportUser] = useState<{ userId: number; nickname: string } | null>(null);
   const [busy, setBusy] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -58,7 +62,9 @@ export default function BandDetailPage({ me }: { me: Me }) {
       <header className="top pad">
         <div className="between">
           <button className="btn-ghost" onClick={() => nav(-1)}>← 뒤로</button>
-          {band.me === 'HOST' && <button className="btn-ghost" onClick={() => setSheet('seats')}>자리·모집 설정</button>}
+          {band.me === 'HOST'
+            ? <button className="btn-ghost" onClick={() => setSheet('seats')}>자리·모집 설정</button>
+            : <button className="btn-ghost" onClick={() => setSheet('report')}>밴드 신고</button>}
         </div>
         <div className="row"><span className="genre">{genreName(band.genre)}</span>{!band.recruiting && <span className="tag soft">모집 마감</span>}</div>
         <h1 className="h1">{band.title}</h1>
@@ -97,6 +103,9 @@ export default function BandDetailPage({ me }: { me: Me }) {
                   <b>{m.nickname}{m.userId === me.id && ' (나)'}</b>
                   {m.role === 'HOST' && <span className="tag">방장</span>}
                   <span className="sub push">{levelName(m.level)}</span>
+                  {m.userId !== me.id && (
+                    <button className="more" aria-label={`${m.nickname} 더 보기`} onClick={() => setMember({ userId: m.userId, nickname: m.nickname })}>⋯</button>
+                  )}
                 </li>
               ));
               for (let k = people.length; k < s.total; k++) {
@@ -179,6 +188,20 @@ export default function BandDetailPage({ me }: { me: Me }) {
           </button>
         </Sheet>
       )}
+      {member && (
+        <Sheet title={member.nickname} onClose={() => setMember(null)}>
+          {band.me === 'HOST' && (
+            <button className="btn-dark wide" disabled={busy}
+                    onClick={() => act(() => transferHost(band.id, member.userId), `${member.nickname}님이 새 방장이 됐어요`).then(() => setMember(null))}>
+              방장 넘기기
+            </button>
+          )}
+          {band.me === 'HOST' && <p className="sub">넘기면 지원자 수락·합주 확정·예약을 {member.nickname}님이 맡고, 나는 일반 멤버가 돼요.</p>}
+          <button className="btn-ghost wide danger-text" onClick={() => { setReportUser(member); setMember(null); }}>{member.nickname}님 신고</button>
+        </Sheet>
+      )}
+      {reportUser && <ReportSheet target="USER" id={reportUser.userId} label={`${reportUser.nickname}님`} onClose={() => setReportUser(null)} />}
+      {sheet === 'report' && <ReportSheet target="BAND" id={band.id} label={`'${band.title}'`} onClose={() => setSheet(null)} />}
       {toast && <div className="toast" role="status">{toast}</div>}
     </main>
   );

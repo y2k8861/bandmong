@@ -16,6 +16,7 @@ import JamPage from './pages/JamPage';
 import ChatPage from './pages/ChatPage';
 import StudioPage from './pages/StudioPage';
 import GigPage from './pages/GigPage';
+import AdminPage from './pages/AdminPage';
 import NotificationsPage from './pages/NotificationsPage';
 import { StreamProvider } from './lib/stream';
 
@@ -79,6 +80,7 @@ export default function App() {
             <Route path="/bands/:id/chat" element={<ChatPage me={me} />} />
             <Route path="/bands/:id/studio" element={<StudioPage />} />
             <Route path="/gigs/:id" element={<GigPage />} />
+            {me.role === 'ADMIN' && <Route path="/admin" element={<AdminPage />} />}
             <Route path="/notifications" element={withTabs(<NotificationsPage />)} />
           </>
         ) : null}

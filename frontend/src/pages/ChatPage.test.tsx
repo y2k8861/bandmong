@@ -5,7 +5,7 @@ import ChatPage, { mergeMessages } from './ChatPage';
 import { StreamContext, type Stream } from '../lib/stream';
 import type { Me, MessageView } from '../api/types';
 
-const me: Me = { id: 7, provider: 'dev', nickname: '베이시스트', instruments: ['BASS'], level: 'HOBBY', region: null, onboarded: true };
+const me: Me = { id: 7, provider: 'dev', nickname: '베이시스트', instruments: ['BASS'], level: 'HOBBY', region: null, onboarded: true, role: 'USER', restrictedUntil: null };
 const msg = (id: number, over: Partial<MessageView> = {}): MessageView => ({
   id, bandId: 3, type: 'TEXT', senderId: 1, senderNickname: '기타방장', body: `메시지 ${id}`,
   createdAt: '2026-11-20T11:00:00Z', clientId: null, ...over,

@@ -4,13 +4,13 @@ import { MemoryRouter } from 'react-router-dom';
 import OnboardingPage from './OnboardingPage';
 import type { Me } from '../api/types';
 
-const fresh: Me = { id: 1, provider: 'dev', nickname: null, instruments: [], level: null, region: null, onboarded: false };
+const fresh: Me = { id: 1, provider: 'dev', nickname: null, instruments: [], level: null, region: null, onboarded: false, role: 'USER', restrictedUntil: null };
 
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 
 describe('온보딩', () => {
   it('악기·실력·닉네임을 다 채워야 시작 버튼이 켜지고, 저장하면 서버 응답을 넘긴다', async () => {
-    const saved: Me = { ...fresh, nickname: '퇴근베이스', instruments: ['BASS'], level: 'HOBBY', onboarded: true };
+    const saved: Me = { ...fresh, nickname: '퇴근베이스', instruments: ['BASS'], level: 'HOBBY', onboarded: true, role: 'USER', restrictedUntil: null };
     const fetchMock = vi.fn(async () => new Response(JSON.stringify(saved), { status: 200 }));
     vi.stubGlobal('fetch', fetchMock);
     const onSaved = vi.fn();

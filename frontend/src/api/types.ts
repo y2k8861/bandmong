@@ -9,6 +9,8 @@ export interface Me {
   level: Level | null;
   region: string | null;
   onboarded: boolean;
+  role: 'USER' | 'ADMIN';
+  restrictedUntil: string | null;
 }
 
 export interface Providers {
@@ -172,6 +174,7 @@ export interface MessageView {
   body: string;
   createdAt: string;
   clientId: string | null;
+  hidden?: boolean;
 }
 
 export interface MessagePage {
@@ -226,4 +229,14 @@ export interface GigView {
   id: number; bandId: number; bandTitle: string; title: string; startsAt: string; venue: string | null; slotMinutes: number;
   status: 'SCHEDULED' | 'CANCELED'; version: number; host: boolean; totalSec: number;
   items: CueItem[]; checks: { id: number; text: string; done: boolean; doneBy: string | null }[]; doneCount: number;
+}
+
+export type ReportTarget = 'USER' | 'BAND' | 'MESSAGE';
+export type ReportReason = 'ABUSE' | 'SPAM' | 'NO_SHOW' | 'FAKE' | 'SEXUAL' | 'OTHER';
+export type ModerationAction = 'DISMISS' | 'WARN' | 'SUSPEND_7' | 'SUSPEND_30' | 'HIDE_MESSAGE' | 'CLOSE_RECRUITING';
+export interface ReportView {
+  id: number; targetType: ReportTarget; targetId: number; reason: ReportReason; reasonLabel: string; detail: string | null;
+  status: 'OPEN' | 'RESOLVED' | 'DISMISSED'; createdAt: string; reporterNickname: string;
+  accusedId: number; accusedNickname: string | null; targetSummary: string; openOnTarget: number;
+  reportsAgainstAccused: number; accusedRestrictedUntil: string | null; resolution: string | null; adminNote: string | null;
 }

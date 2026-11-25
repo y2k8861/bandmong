@@ -286,3 +286,18 @@ a.btn-dark.wide { height: 46px; border-radius: 12px; }
 .checks .x { background: none; border: none; color: var(--faint); font-size: 13px; padding: 6px; }
 .bar.col .row { gap: 8px; }
 .bar.col .row .cta { flex: 1; }
+
+/* ── 6단계: 신고·운영 ── */
+.reason-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.reason { display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line); font-size: 14px; }
+.reason.on { border-color: var(--err); background: #FBE4E1; font-weight: 700; }
+.reason input { accent-color: var(--err); }
+.more { background: none; border: none; font-size: 18px; color: var(--mute); width: 32px; height: 32px; padding: 0; flex: none; }
+.bubble.hidden { background: var(--paper) !important; color: var(--mute); font-style: italic; }
+.msg-report { padding: 2px 4px; color: var(--err); }
+.restricted { background: #FBE4E1; text-decoration: none; color: inherit; gap: 4px; }
+.restricted b { color: var(--err); }
+.admin-link { flex-direction: row; justify-content: space-between; align-items: center; text-decoration: none; color: inherit; background: var(--ink); color: #fff; }
+.admin-link .sub { color: var(--amber); }
+.report { gap: 8px; }
+.report .row.wrap .btn-ghost { height: 34px; }

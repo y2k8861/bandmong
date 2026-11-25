@@ -4,7 +4,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import BandDetailPage from './BandDetailPage';
 import type { BandDetail, Me } from '../api/types';
 
-const me: Me = { id: 7, provider: 'dev', nickname: '베이시스트', instruments: ['BASS'], level: 'HOBBY', region: null, onboarded: true };
+const me: Me = { id: 7, provider: 'dev', nickname: '베이시스트', instruments: ['BASS'], level: 'HOBBY', region: null, onboarded: true, role: 'USER', restrictedUntil: null };
 
 const base: BandDetail = {
   id: 3, title: '금요일 밤 록', genre: 'ROCK', level: null, area: '강남역', schedule: '매주 금 20:00', intro: null,

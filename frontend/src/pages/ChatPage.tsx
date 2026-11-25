@@ -4,6 +4,7 @@ import { getBand } from '../api/bands';
 import { getMessages, markRead, newClientId, sendMessage } from '../api/chat';
 import type { Me, MessageView } from '../api/types';
 import { useStream, useStreamEvent } from '../lib/stream';
+import ReportSheet from '../components/ReportSheet';
 import { useLoad } from '../lib/useLoad';
 import { fmtTime } from '../lib/time';
 
@@ -41,6 +42,8 @@ export default function ChatPage({ me }: { me: Me }) {
   const listRef = useRef<HTMLDivElement>(null);
   const stick = useRef(true); // 맨 아래를 보고 있으면 새 메시지에 따라 내려간다
   const lastMarked = useRef(0);
+  const [picked, setPicked] = useState<number | null>(null); // 남의 메시지를 누르면 "신고" 버튼
+  const [reporting, setReporting] = useState<MessageView | null>(null);
 
   const loadLatest = useCallback(async () => {
     try {
@@ -160,11 +163,15 @@ export default function ChatPage({ me }: { me: Me }) {
               <div className={`msg ${mine ? 'mine' : ''}`}>
                 {showName && <span className="who">{m.senderNickname}</span>}
                 <div className="line">
-                  <p className="bubble">{m.body}</p>
+                  <p className={`bubble ${m.hidden ? 'hidden' : ''}`}
+                     onClick={() => !mine && !m.hidden && m.id > 0 && setPicked(picked === m.id ? null : m.id)}>{m.body}</p>
                   <span className="meta">
                     {m.state === 'sending' ? '보내는 중' : m.state === 'failed' ? '' : fmtTime(m.createdAt)}
                   </span>
                 </div>
+                {picked === m.id && !mine && (
+                  <button className="link-btn msg-report" onClick={() => { setReporting(m); setPicked(null); }}>이 메시지 신고</button>
+                )}
                 {m.state === 'failed' && (
                   <div className="fail">
                     <span>보내지 못했어요</span>
@@ -178,6 +185,7 @@ export default function ChatPage({ me }: { me: Me }) {
         })}
       </div>
 
+      {reporting && <ReportSheet target="MESSAGE" id={reporting.id} label="메시지" onClose={() => setReporting(null)} />}
       <form className="composer pad" onSubmit={submit}>
         <textarea className="input" rows={1} maxLength={1000} placeholder="메시지 보내기" aria-label="메시지" value={text}
                   onChange={(e) => setText(e.target.value)}

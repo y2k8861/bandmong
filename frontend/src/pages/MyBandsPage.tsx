@@ -22,6 +22,12 @@ export default function MyBandsPage({ me }: { me: Me }) {
         <p className="sub">{me.nickname}님, 오늘도 퇴근하고 합주 어때요?</p>
       </header>
       <div className="body pad">
+        {me.restrictedUntil && (
+          <Link to="/me" className="card restricted">
+            <b>지금은 이용이 제한돼 보기만 할 수 있어요</b>
+            <span className="sub">자세히 보기 →</span>
+          </Link>
+        )}
         {loading && !data && <p className="sub">불러오는 중…</p>}
         {error && <div className="card"><p className="err-text">{error}</p><button className="btn-ghost" onClick={reload}>다시 시도</button></div>}
         {data && data.bands.length === 0 && data.applied.length === 0 && (
