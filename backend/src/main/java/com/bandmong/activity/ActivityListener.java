@@ -99,6 +99,15 @@ public class ActivityListener {
     }
 
     @EventListener
+    public void on(HostChanged e) {
+        Band band = bands.findById(e.bandId()).orElseThrow();
+        User next = users.findById(e.newHostId()).orElseThrow();
+        chat.system(band, next.getNickname() + "님이 새 방장이 됐어요");
+        notifications.notify(List.of(next), NotificationType.HOST_CHANGED, "'" + band.getTitle() + "' 방장이 됐어요",
+                "지원자 수락, 합주 확정, 합주실 예약을 이제 맡아 주세요", "/bands/" + band.getId());
+    }
+
+    @EventListener
     public void on(GigScheduled e) {
         Gig g = gigs.findById(e.gigId()).orElseThrow();
         Band band = g.getBand();

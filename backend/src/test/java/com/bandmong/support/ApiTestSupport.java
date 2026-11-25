@@ -27,13 +27,22 @@ public abstract class ApiTestSupport {
     public record Person(MockHttpSession session, long id) {
     }
 
-    /** 개발용 로그인 + 프로필 설정까지 마친 사람 */
-    protected Person person(String nickname, String instrumentsJson) throws Exception {
-        MockHttpSession s = (MockHttpSession) mvc.perform(post("/api/dev/login").with(csrf())
+    /** 개발용 로그인만 (같은 이름이면 같은 계정) */
+    protected MockHttpSession loginAs(String name) throws Exception {
+        return (MockHttpSession) mvc.perform(post("/api/dev/login").with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"name\":\"" + UUID.randomUUID().toString().substring(0, 12) + "\"}"))
+                        .content("{\"name\":\"" + name + "\"}"))
                 .andExpect(status().isOk())
                 .andReturn().getRequest().getSession(false);
+    }
+
+    /** 개발용 로그인 + 프로필 설정까지 마친 사람 */
+    protected Person person(String nickname, String instrumentsJson) throws Exception {
+        return personNamed(UUID.randomUUID().toString().substring(0, 12), nickname, instrumentsJson);
+    }
+
+    protected Person personNamed(String loginName, String nickname, String instrumentsJson) throws Exception {
+        MockHttpSession s = loginAs(loginName);
         String body = "{\"nickname\":\"" + nickname + "\",\"instruments\":" + instrumentsJson + ",\"level\":\"HOBBY\"}";
         JsonNode me = read(mvc.perform(put("/api/me/profile").session(s).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON).content(body)).andExpect(status().isOk()));

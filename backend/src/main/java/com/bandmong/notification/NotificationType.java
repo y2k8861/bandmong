@@ -11,5 +11,8 @@ public enum NotificationType {
     JAM_CANCELED,           // 멤버: 합주 취소
     BOOKING_CONFIRMED,      // 멤버: 합주실 예약 + 정산 금액
     BOOKING_CANCELED,       // 멤버: 합주실 예약 취소
-    GIG_SCHEDULED           // 멤버: 공연이 잡힘
+    GIG_SCHEDULED,          // 멤버: 공연이 잡힘
+    HOST_CHANGED,           // 새 방장
+    REPORT_RESOLVED,        // 신고한 사람: 처리 결과
+    SANCTIONED              // 신고된 사람: 경고·이용 제한·메시지 가림
 }

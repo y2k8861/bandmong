@@ -71,6 +71,15 @@ public class BandController {
         return service.reject(userId, bandId, applicationId);
     }
 
+    public record TransferRequest(@jakarta.validation.constraints.NotNull(message = "새 방장을 골라 주세요") Long userId) {
+    }
+
+    @PostMapping("/api/bands/{bandId}/host")
+    public BandDetail transferHost(@AuthenticationPrincipal Long userId, @PathVariable Long bandId,
+                                   @Valid @RequestBody TransferRequest req) {
+        return service.transferHost(userId, bandId, req.userId());
+    }
+
     @DeleteMapping("/api/bands/{bandId}/members/me")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void leave(@AuthenticationPrincipal Long userId, @PathVariable Long bandId) {

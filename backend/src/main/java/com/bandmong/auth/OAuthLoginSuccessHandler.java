@@ -43,7 +43,7 @@ public class OAuthLoginSuccessHandler implements AuthenticationSuccessHandler {
 
         User user = users.findByProviderAndProviderId(provider, providerId)
                 .orElseGet(() -> users.save(new User(provider, providerId, null)));
-        sessionLogin.login(user.getId(), request, response);
+        sessionLogin.login(user, request, response);
         response.sendRedirect(frontUrl);
     }
 

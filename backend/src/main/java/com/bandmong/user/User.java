@@ -45,6 +45,14 @@ public class User {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 10)
+    private Role role = Role.USER;
+
+    /** 탈퇴한 시각. 탈퇴하면 개인정보를 지우고 이 계정으로는 다시 로그인할 수 없다. */
+    @Column(name = "deleted_at")
+    private Instant deletedAt;
+
     protected User() {
     }
 
@@ -72,6 +80,27 @@ public class User {
         this.region = (region == null || region.isBlank()) ? null : region.trim();
     }
 
+    public boolean isAdmin() { return role == Role.ADMIN; }
+    public boolean isDeleted() { return deletedAt != null; }
+    public void promoteToAdmin() { role = Role.ADMIN; }
+
+    /**
+     * 탈퇴: 닉네임·이메일·지역·악기를 지우고, 소셜 계정 연결을 끊는다(같은 카카오 계정으로 오면 새 회원).
+     * 채팅 기록은 남기되 "탈퇴한 사용자"로 보인다.
+     */
+    public void withdraw(Instant now) {
+        nickname = "탈퇴한 사용자";
+        email = null;
+        region = null;
+        level = null;
+        instruments.clear();
+        providerId = "deleted-" + id + "-" + now.toEpochMilli();
+        role = Role.USER;
+        deletedAt = now;
+    }
+
+    public Role getRole() { return role; }
+    public Instant getDeletedAt() { return deletedAt; }
     public Long getId() { return id; }
     public String getProvider() { return provider; }
     public String getProviderId() { return providerId; }

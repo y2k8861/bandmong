@@ -106,6 +106,10 @@ public class Band {
         return seats.values().stream().mapToInt(Integer::intValue).sum();
     }
 
+    public void changeHost(User next) {
+        this.host = next;
+    }
+
     public boolean isHost(Long userId) {
         return host.getId().equals(userId);
     }

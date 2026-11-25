@@ -42,6 +42,10 @@ public class ChatMessage {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
+    /** 신고 처리로 가려짐. 기록은 남기고 내용만 보이지 않는다. */
+    @Column(nullable = false)
+    private boolean hidden;
+
     protected ChatMessage() {
     }
 
@@ -58,6 +62,8 @@ public class ChatMessage {
         if (createdAt == null) createdAt = Instant.now();
     }
 
+    public void hide() { hidden = true; }
+    public boolean isHidden() { return hidden; }
     public Long getId() { return id; }
     public Band getBand() { return band; }
     public User getSender() { return sender; }

@@ -59,6 +59,7 @@ public class BandMember {
         if (lastReadMessageId == null || messageId > lastReadMessageId) lastReadMessageId = messageId;
     }
 
+    public void changeRole(MemberRole role) { this.role = role; }
     public Long getLastReadMessageId() { return lastReadMessageId; }
     public Long getId() { return id; }
     public Band getBand() { return band; }

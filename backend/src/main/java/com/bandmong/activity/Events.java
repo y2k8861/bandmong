@@ -31,4 +31,7 @@ public final class Events {
 
     public record GigScheduled(Long gigId, Long actorId) {
     }
+
+    public record HostChanged(Long bandId, Long oldHostId, Long newHostId) {
+    }
 }

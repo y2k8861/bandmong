@@ -214,12 +214,29 @@ public class BandService {
         return detail(userId, bandId);
     }
 
+    /** 방장 넘기기: 두 사람의 역할을 바꾸고 밴드의 방장을 바꾼다. 넘긴 사람은 일반 멤버로 남는다. */
+    public BandDetail transferHost(Long userId, Long bandId, Long targetId) {
+        Band band = lockBand(bandId);
+        requireHost(band, userId);
+        if (userId.equals(targetId)) throw bad("이미 방장이에요");
+        List<BandMember> list = members.findByBandWithUser(bandId);
+        BandMember me = list.stream().filter(m -> m.getUser().getId().equals(userId)).findFirst().orElseThrow();
+        BandMember next = list.stream().filter(m -> m.getUser().getId().equals(targetId)).findFirst()
+                .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "이 밴드 멤버가 아니에요"));
+        me.changeRole(MemberRole.MEMBER);
+        next.changeRole(MemberRole.HOST);
+        band.changeHost(next.getUser());
+        members.flush();
+        events.publishEvent(new Events.HostChanged(bandId, userId, targetId));
+        return detail(userId, bandId);
+    }
+
     public void leave(Long userId, Long bandId) {
         lockBand(bandId);
         BandMember m = members.findByBandIdAndUserId(bandId, userId)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "이 밴드 멤버가 아니에요"));
         if (m.getRole() == MemberRole.HOST) {
-            throw conflict("방장은 아직 나갈 수 없어요. 방장 넘기기는 다음 업데이트에서 열려요");
+            throw conflict("방장은 나갈 수 없어요. 먼저 다른 멤버에게 방장을 넘겨 주세요");
         }
         members.delete(m);
         members.flush();

@@ -42,7 +42,7 @@ public class DevAuthController {
         String key = req.name().trim();
         User user = users.findByProviderAndProviderId("dev", key)
                 .orElseGet(() -> users.save(new User("dev", key, null)));
-        sessionLogin.login(user.getId(), request, response);
+        sessionLogin.login(user, request, response);
         return MeResponse.of(user);
     }
 }

@@ -21,13 +21,31 @@ public class SessionLogin {
 
     private final SecurityContextRepository repository = new HttpSessionSecurityContextRepository();
 
-    public void login(Long userId, HttpServletRequest request, HttpServletResponse response) {
+    private final java.util.Set<String> admins;
+
+    /** bandmong.admins: "provider:providerId" 목록 (예: dev:admin, kakao:12345) */
+    public SessionLogin(@org.springframework.beans.factory.annotation.Value("${bandmong.admins:}") java.util.List<String> admins) {
+        this.admins = new java.util.HashSet<>(admins);
+    }
+
+    /** 호출하는 쪽이 트랜잭션 안이어야 ADMIN 승격이 저장된다 */
+    public void login(com.bandmong.user.User user, HttpServletRequest request, HttpServletResponse response) {
+        if (!user.isAdmin() && admins.contains(user.getProvider() + ":" + user.getProviderId())) {
+            user.promoteToAdmin();
+        }
+        List<SimpleGrantedAuthority> roles = user.isAdmin()
+                ? List.of(new SimpleGrantedAuthority("ROLE_USER"), new SimpleGrantedAuthority("ROLE_ADMIN"))
+                : List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        login(user.getId(), roles, request, response);
+    }
+
+    private void login(Long userId, List<SimpleGrantedAuthority> roles, HttpServletRequest request, HttpServletResponse response) {
         // 세션 고정 공격 방지: 로그인 전에 쓰던 세션 id를 바꾼다.
         if (request.getSession(false) != null) {
             request.changeSessionId();
         }
         var auth = UsernamePasswordAuthenticationToken.authenticated(
-                userId, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+                userId, null, roles);
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         context.setAuthentication(auth);
         SecurityContextHolder.setContext(context);
