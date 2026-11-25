@@ -1,0 +1,7 @@
+{$DOMAIN} {
+    encode gzip
+    # SSE(/api/stream)가 끊기지 않게 바로바로 넘긴다
+    reverse_proxy frontend:80 {
+        flush_interval -1
+    }
+}

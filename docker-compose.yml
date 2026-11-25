@@ -1,0 +1,42 @@
+# 내 컴퓨터에서 운영과 같은 구성(MySQL + Spring + nginx)으로 한 번에 띄우기
+#   docker compose up --build   →  http://localhost:8000
+# 개발용 로그인이 켜져 있어 소셜 로그인 키 없이 둘러볼 수 있다. 관리자: 이름에 admin
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: bandmong
+      MYSQL_USER: bandmong
+      MYSQL_PASSWORD: bandmong
+      MYSQL_ROOT_PASSWORD: root
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-proot"]
+      interval: 5s
+      retries: 30
+
+  backend:
+    build: ./backend
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_URL: jdbc:mysql://mysql:3306/bandmong
+      DB_USERNAME: bandmong
+      DB_PASSWORD: bandmong
+      COOKIE_SECURE: "false"   # http로 띄우니까
+      DEV_LOGIN: "true"
+      ADMINS: dev:admin
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8000:80"
+    depends_on:
+      - backend
+
+volumes:
+  mysql-data:

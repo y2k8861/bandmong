@@ -1,0 +1,70 @@
+name: Deploy
+
+# 손으로 실행: Actions → Deploy → Run workflow
+# EC2에 접속해 GHCR의 새 이미지를 받고 다시 띄운다. 되돌릴 때는 tag에 이전 커밋 sha를 넣는다.
+# 먼저 저장소 Settings → Secrets에 EC2_HOST, EC2_USER, EC2_SSH_KEY, DOMAIN 을 등록한다 (docs/deploy.md).
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 배포할 이미지 태그 (latest 또는 커밋 sha)
+        required: true
+        default: latest
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 설정 확인
+        env:
+          HOST: ${{ secrets.EC2_HOST }}
+        run: |
+          if [ -z "$HOST" ]; then
+            echo "::error::EC2_HOST·EC2_USER·EC2_SSH_KEY·DOMAIN secrets를 먼저 등록하세요 (docs/deploy.md 참고)"
+            exit 1
+          fi
+
+      - name: 배포 파일 올리기
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: deploy/docker-compose.prod.yml,deploy/Caddyfile
+          target: ~/bandmong
+          strip_components: 1
+
+      - name: 새 이미지 받고 다시 띄우기
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -e
+            cd ~/bandmong
+            if [ -n "${{ secrets.GHCR_TOKEN }}" ]; then
+              echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
+            fi
+            export TAG=${{ inputs.tag }}
+            docker compose -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.prod.yml up -d --remove-orphans
+            docker image prune -f
+
+      - name: 헬스 체크
+        run: |
+          for i in $(seq 1 30); do
+            if curl -fsS "https://${{ secrets.DOMAIN }}/actuator/health" | grep -q UP; then
+              echo "배포 완료: https://${{ secrets.DOMAIN }}"; exit 0
+            fi
+            sleep 5
+          done
+          echo "::error::150초 안에 서버가 UP이 되지 않았어요. EC2에서 docker compose logs backend 를 확인하세요"
+          exit 1
