@@ -1,0 +1,25 @@
+name: Schema export
+
+# 손으로 실행: 엔티티에서 MySQL CREATE 문을 뽑아 로그와 아티팩트로 남긴다 (마이그레이션 초안용)
+on:
+  workflow_dispatch:
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v4
+      - run: SCHEMA_EXPORT=true ./gradlew test --tests '*SchemaExportTest' --no-daemon
+      - run: cat build/schema-mysql.sql
+      - uses: actions/upload-artifact@v4
+        with:
+          name: schema-mysql
+          path: backend/build/schema-mysql.sql
