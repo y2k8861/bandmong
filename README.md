@@ -14,7 +14,9 @@
 | 프론트 | React 18, TypeScript, Vite, React Router |
 | 테스트 | JUnit 5 + MockMvc, Vitest + Testing Library |
 | 실시간 | SSE(Server-Sent Events) — 채팅·알림 |
-| CI | GitHub Actions (push마다 백엔드·프론트 테스트와 빌드) |
+| DB 마이그레이션 | Flyway (운영 MySQL은 `ddl-auto: validate`) |
+| 배포 | Docker, nginx, Caddy(https), GHCR, AWS EC2 + RDS |
+| CI/CD | GitHub Actions: 테스트 → MySQL 검증 → 전체 묶음 스모크 테스트 → 이미지 푸시 → (수동) EC2 배포 |
 
 ## 폴더 구조
 
@@ -44,6 +46,21 @@ npm run dev
 같은 이름으로 다시 들어오면 같은 계정이에요.
 
 테스트: `cd backend && ./gradlew test`, `cd frontend && npm test`
+
+### 운영과 같은 구성으로 한 번에 띄우기 (Docker)
+
+```bash
+docker compose up --build      # MySQL + Spring + nginx → http://localhost:8000
+deploy/smoke-test.sh           # 로그인·한글·실시간 연결까지 자동 확인
+```
+
+## 배포
+
+AWS EC2 + RDS(MySQL) + Docker + GitHub Actions 구성으로 준비되어 있다. → [배포 가이드](docs/deploy.md)
+
+- push마다 CI가 ① 백엔드·프론트 테스트 ② **실제 MySQL**에 운영 설정으로 붙여 마이그레이션 검증
+  ③ docker compose로 전체를 띄워 실제 요청 확인 ④ 이미지를 GHCR에 푸시
+- 배포는 Actions의 Deploy를 손으로 실행 (이미지 태그로 되돌리기 가능)
 
 ## 진행 상황
 
