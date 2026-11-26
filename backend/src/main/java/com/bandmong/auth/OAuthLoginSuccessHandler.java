@@ -25,12 +25,18 @@ public class OAuthLoginSuccessHandler implements AuthenticationSuccessHandler {
     private final UserRepository users;
     private final SessionLogin sessionLogin;
     private final String frontUrl;
+    private final com.bandmong.app.AppAuthService appAuth;
+    private final String appScheme;
 
     public OAuthLoginSuccessHandler(UserRepository users, SessionLogin sessionLogin,
-                                    @Value("${bandmong.front-url:/}") String frontUrl) {
+                                    @Value("${bandmong.front-url:/}") String frontUrl,
+                                    com.bandmong.app.AppAuthService appAuth,
+                                    @Value("${bandmong.app.scheme:bandmong}") String appScheme) {
         this.users = users;
         this.sessionLogin = sessionLogin;
         this.frontUrl = frontUrl;
+        this.appAuth = appAuth;
+        this.appScheme = appScheme;
     }
 
     @Override
@@ -43,6 +49,14 @@ public class OAuthLoginSuccessHandler implements AuthenticationSuccessHandler {
 
         User user = users.findByProviderAndProviderId(provider, providerId)
                 .orElseGet(() -> users.save(new User(provider, providerId, null)));
+        var session = request.getSession(false);
+        boolean fromApp = session != null && session.getAttribute(com.bandmong.app.AppOAuthMarkerFilter.ATTR) != null;
+        if (fromApp) {
+            // 앱에서 시작한 로그인: 일회용 코드를 들고 앱으로 돌아간다 (앱이 코드를 토큰으로 바꿈)
+            session.removeAttribute(com.bandmong.app.AppOAuthMarkerFilter.ATTR);
+            response.sendRedirect(appScheme + "://auth?code=" + appAuth.createLoginCode(user.getId()));
+            return;
+        }
         sessionLogin.login(user, request, response);
         response.sendRedirect(frontUrl);
     }

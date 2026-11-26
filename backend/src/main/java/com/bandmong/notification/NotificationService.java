@@ -26,11 +26,13 @@ public class NotificationService {
     private final NotificationRepository repo;
     private final SseHub hub;
     private final Clock clock;
+    private final com.bandmong.app.PushService push;
 
-    public NotificationService(NotificationRepository repo, SseHub hub, Clock clock) {
+    public NotificationService(NotificationRepository repo, SseHub hub, Clock clock, com.bandmong.app.PushService push) {
         this.repo = repo;
         this.hub = hub;
         this.clock = clock;
+        this.push = push;
     }
 
     /** 알림을 저장하고, 커밋된 뒤에 열려 있는 화면으로 밀어 준다 */
@@ -39,7 +41,10 @@ public class NotificationService {
             Notification saved = repo.save(new Notification(u, type, title, body, link));
             NotificationView view = NotificationView.of(saved);
             Long userId = u.getId();
-            AfterCommit.run(() -> hub.send(userId, "notification", new NotificationPush(view, repo.countUnread(userId))));
+            AfterCommit.run(() -> {
+                hub.send(userId, "notification", new NotificationPush(view, repo.countUnread(userId)));
+                push.send(userId, title, body, link); // 앱이 꺼져 있어도 보이게
+            });
         }
     }
 

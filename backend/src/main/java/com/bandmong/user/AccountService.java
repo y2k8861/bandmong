@@ -27,9 +27,11 @@ public class AccountService {
     private final BandApplicationRepository applications;
     private final BandService bandService;
     private final Clock clock;
+    private final com.bandmong.app.AppAuthService appAuth;
 
     public AccountService(UserRepository users, BandMemberRepository members, BandApplicationRepository applications,
-                          BandService bandService, Clock clock) {
+                          BandService bandService, Clock clock, com.bandmong.app.AppAuthService appAuth) {
+        this.appAuth = appAuth;
         this.users = users;
         this.members = members;
         this.applications = applications;
@@ -59,6 +61,7 @@ public class AccountService {
             }
         }
         applications.findByUserAndStatus(userId, PENDING).forEach(a -> a.decide(CANCELED));
+        appAuth.revokeAll(userId); // 모든 기기 로그아웃 + 푸시 끊기
         me.withdraw(clock.instant());
     }
 }

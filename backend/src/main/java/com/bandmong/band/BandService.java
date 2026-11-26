@@ -34,10 +34,15 @@ public class BandService {
     private final JamService jams;
     private final ChatService chat;
     private final ApplicationEventPublisher events;
+    private final com.bandmong.moderation.BlockService blocks;
+    private final com.bandmong.web.ProfanityFilter profanity;
 
     public BandService(BandRepository bands, BandMemberRepository members,
                        BandApplicationRepository applications, UserRepository users, JamService jams,
-                       ChatService chat, ApplicationEventPublisher events) {
+                       ChatService chat, ApplicationEventPublisher events,
+                       com.bandmong.moderation.BlockService blocks, com.bandmong.web.ProfanityFilter profanity) {
+        this.blocks = blocks;
+        this.profanity = profanity;
         this.bands = bands;
         this.members = members;
         this.applications = applications;
@@ -51,6 +56,8 @@ public class BandService {
 
     public BandDetail create(Long userId, BandCreateRequest r) {
         User me = onboarded(userId);
+        profanity.check(r.title());
+        profanity.check(r.intro());
         if (!me.getInstruments().contains(r.hostInstrument())) {
             throw bad("내 프로필에 있는 악기로 골라 주세요");
         }
@@ -71,6 +78,7 @@ public class BandService {
     public BandDetail update(Long userId, Long bandId, BandUpdateRequest r) {
         Band band = lockBand(bandId);
         requireHost(band, userId);
+        profanity.check(r.intro());
         if (r.seats() != null) {
             Map<Instrument, Integer> seats = new EnumMap<>(Instrument.class);
             r.seats().forEach((k, v) -> seats.put(k, v == null ? 0 : v));
@@ -90,8 +98,10 @@ public class BandService {
         Set<Long> pending = applications.findByUserAndStatus(userId, PENDING).stream()
                 .map(a -> a.getBand().getId()).collect(Collectors.toSet());
         String q = area == null ? "" : area.trim();
+        Set<Long> blocked = blocks.blockedBy(userId);
 
         return list.stream()
+                .filter(b -> !blocked.contains(b.getHost().getId()))
                 .filter(b -> genre == null || b.getGenre() == genre)
                 .filter(b -> q.isEmpty() || b.getArea().contains(q))
                 .map(b -> summary(b, byBand.getOrDefault(b.getId(), List.of()), userId,
@@ -172,6 +182,7 @@ public class BandService {
         if (openSeats(band, list, r.instrument()) <= 0) {
             throw conflict(r.instrument().label() + " 자리는 지금 비어 있지 않아요");
         }
+        profanity.check(r.message());
         applications.save(new BandApplication(band, me, r.instrument(), blankToNull(r.message())));
         events.publishEvent(new Events.ApplicationSubmitted(bandId, userId, r.instrument()));
         return detail(userId, bandId);

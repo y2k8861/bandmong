@@ -31,5 +31,16 @@ server:
         same-site: lax
 
 bandmong:
+  # 앱 안에 공개하는 고객센터 연락처 (애플 심사 요건)
+  support-email: ${SUPPORT_EMAIL:}
+  app:
+    # 소셜 로그인 뒤 앱으로 돌아갈 주소 (iOS URL scheme)
+    scheme: ${APP_SCHEME:bandmong}
+    # Apple로 로그인: 앱의 Bundle ID (identityToken의 aud와 같아야 함)
+    apple-bundle-id: ${APPLE_BUNDLE_ID:com.bandmong.app}
+    # 앱 토큰 유효 기간(일). 쓸 때마다 늘어나지는 않는다.
+    token-days: 180
+  # 푸시 알림(FCM) 서비스 계정 JSON 파일 경로. 비우면 푸시를 보내지 않는다.
+  fcm-credentials: ${FCM_CREDENTIALS:}
   # 개발용 로그인(POST /api/dev/login)을 켤지. dev 프로필에서만 true로 둡니다.
   dev-login: false

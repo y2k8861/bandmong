@@ -14,8 +14,11 @@ public class MeController {
     private final UserRepository users;
     private final com.bandmong.moderation.AccountGuard guard;
     private final AccountService accounts;
+    private final com.bandmong.web.ProfanityFilter profanity;
 
-    public MeController(UserRepository users, com.bandmong.moderation.AccountGuard guard, AccountService accounts) {
+    public MeController(UserRepository users, com.bandmong.moderation.AccountGuard guard, AccountService accounts,
+                        com.bandmong.web.ProfanityFilter profanity) {
+        this.profanity = profanity;
         this.users = users;
         this.guard = guard;
         this.accounts = accounts;
@@ -42,6 +45,8 @@ public class MeController {
     public MeResponse updateProfile(@AuthenticationPrincipal Long userId,
                                     @Valid @RequestBody ProfileRequest req) {
         User u = load(userId);
+        profanity.check(req.nickname());
+        profanity.check(req.region());
         u.updateProfile(req.nickname(), req.instruments(), req.level(), req.region());
         return MeResponse.of(u);
     }

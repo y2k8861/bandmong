@@ -28,16 +28,28 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http,
                                     ObjectProvider<ClientRegistrationRepository> clients,
-                                    OAuthLoginSuccessHandler oauthSuccess) throws Exception {
+                                    OAuthLoginSuccessHandler oauthSuccess,
+                                    com.bandmong.app.AppAuthService appAuth,
+                                    @org.springframework.beans.factory.annotation.Value("${bandmong.app.cors-origins:capacitor://localhost,https://localhost}")
+                                    java.util.List<String> appOrigins) throws Exception {
         http
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                        .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()))
+                        .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
+                        // 앱: 쿠키가 아니라 Authorization 헤더로 로그인하므로 CSRF 대상이 아니다.
+                        // 앱 로그인 요청은 토큰을 본문으로 돌려줄 뿐 쿠키를 심지 않는다.
+                        .ignoringRequestMatchers(
+                                req -> com.bandmong.app.AppTokenFilter.bearer(req) != null,
+                                req -> req.getRequestURI().startsWith("/api/app/login/")))
+                // 앱(capacitor://localhost)에서 오는 요청만 다른 출처 허용. 쿠키는 허용하지 않는다(토큰만).
+                .cors(c -> c.configurationSource(appCors(appOrigins)))
+                .addFilterAfter(new com.bandmong.app.AppTokenFilter(appAuth),
+                        org.springframework.security.web.context.SecurityContextHolderFilter.class)
                 .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
                         // SSE 연결이 끝날 때 서버 안에서 다시 들어오는 비동기·오류 요청은 막지 않는다
                         .dispatcherTypeMatchers(DispatcherType.ASYNC, DispatcherType.ERROR).permitAll()
-                        .requestMatchers("/api/auth/**", "/api/time", "/api/dev/**").permitAll()
+                        .requestMatchers("/api/auth/**", "/api/time", "/api/dev/**", "/api/app/login/**").permitAll()
                         .requestMatchers("/oauth2/**", "/login/oauth2/**", "/error").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/actuator/health").permitAll()
@@ -53,7 +65,21 @@ public class SecurityConfig {
         // 소셜 로그인 키가 설정된 환경(운영)에서만 켠다. 로컬에서는 개발용 로그인을 쓴다.
         if (clients.getIfAvailable() != null) {
             http.oauth2Login(o -> o.successHandler(oauthSuccess));
+            http.addFilterBefore(new com.bandmong.app.AppOAuthMarkerFilter(),
+                    org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter.class);
         }
         return http.build();
+    }
+
+    static org.springframework.web.cors.CorsConfigurationSource appCors(java.util.List<String> origins) {
+        var config = new org.springframework.web.cors.CorsConfiguration();
+        config.setAllowedOrigins(origins);
+        config.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(java.util.List.of("Authorization", "Content-Type"));
+        config.setAllowCredentials(false);
+        config.setMaxAge(3600L);
+        var source = new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/api/**", config);
+        return source;
     }
 }

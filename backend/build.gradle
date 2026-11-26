@@ -26,6 +26,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.flywaydb:flyway-core'
     runtimeOnly 'org.flywaydb:flyway-mysql'
+    // 앱 푸시 알림 (FCM). 서비스 계정 키가 설정됐을 때만 켜진다.
+    implementation 'com.google.firebase:firebase-admin:9.4.1'
 
     runtimeOnly 'com.h2database:h2'
     runtimeOnly 'com.mysql:mysql-connector-j'

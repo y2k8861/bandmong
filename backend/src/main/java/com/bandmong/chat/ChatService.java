@@ -29,12 +29,17 @@ public class ChatService {
     private final BandRepository bands;
     private final BandMemberRepository members;
     private final SseHub hub;
+    private final com.bandmong.moderation.BlockService blocks;
+    private final com.bandmong.web.ProfanityFilter profanity;
 
-    public ChatService(ChatMessageRepository messages, BandRepository bands, BandMemberRepository members, SseHub hub) {
+    public ChatService(ChatMessageRepository messages, BandRepository bands, BandMemberRepository members, SseHub hub,
+                       com.bandmong.moderation.BlockService blocks, com.bandmong.web.ProfanityFilter profanity) {
         this.messages = messages;
         this.bands = bands;
         this.members = members;
         this.hub = hub;
+        this.blocks = blocks;
+        this.profanity = profanity;
     }
 
     @Transactional(readOnly = true)
@@ -44,7 +49,10 @@ public class ChatService {
         List<ChatMessage> desc = messages.findPage(bandId, before == null ? Long.MAX_VALUE : before,
                 PageRequest.of(0, size + 1));
         boolean hasMore = desc.size() > size;
+        // 내가 차단한 사람의 메시지는 빼고 보여 준다 (페이지 경계는 원래 id 기준이라 커서가 흐트러지지 않음)
+        java.util.Set<Long> blocked = blocks.blockedBy(userId);
         List<MessageView> asc = new ArrayList<>(desc.subList(0, Math.min(size, desc.size())).stream()
+                .filter(m -> m.getSender() == null || !blocked.contains(m.getSender().getId()))
                 .map(MessageView::of).toList());
         Collections.reverse(asc);
         return new MessagePage(asc, hasMore, me.getLastReadMessageId());
@@ -52,7 +60,7 @@ public class ChatService {
 
     public MessageView send(Long userId, Long bandId, SendRequest r) {
         BandMember me = requireMember(bandId, userId);
-        String body = r.body().strip();
+        String body = profanity.mask(r.body().strip()); // 욕설은 *로 가려서 저장
         if (body.isEmpty()) throw new ApiException(HttpStatus.BAD_REQUEST, "메시지를 입력해 주세요");
 
         if (r.clientId() != null) {
@@ -92,7 +100,10 @@ public class ChatService {
     }
 
     private void broadcast(Long bandId, MessageView view) {
-        List<Long> to = members.findByBandWithUser(bandId).stream().map(m -> m.getUser().getId()).toList();
+        List<Long> all = members.findByBandWithUser(bandId).stream().map(m -> m.getUser().getId()).toList();
+        // 보낸 사람을 차단한 멤버에게는 보내지 않는다
+        java.util.Set<Long> skip = view.senderId() == null ? java.util.Set.of() : blocks.blockersAmong(view.senderId(), all);
+        List<Long> to = all.stream().filter(id -> !skip.contains(id)).toList();
         AfterCommit.run(() -> hub.sendAll(to, "message", view));
     }
 

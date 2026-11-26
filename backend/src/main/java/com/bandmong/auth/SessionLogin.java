@@ -29,10 +29,15 @@ public class SessionLogin {
     }
 
     /** 호출하는 쪽이 트랜잭션 안이어야 ADMIN 승격이 저장된다 */
-    public void login(com.bandmong.user.User user, HttpServletRequest request, HttpServletResponse response) {
+    /** 설정에 적힌 계정이면 관리자로 (웹·앱 로그인 공통) */
+    public void promoteIfAdmin(com.bandmong.user.User user) {
         if (!user.isAdmin() && admins.contains(user.getProvider() + ":" + user.getProviderId())) {
             user.promoteToAdmin();
         }
+    }
+
+    public void login(com.bandmong.user.User user, HttpServletRequest request, HttpServletResponse response) {
+        promoteIfAdmin(user);
         List<SimpleGrantedAuthority> roles = user.isAdmin()
                 ? List.of(new SimpleGrantedAuthority("ROLE_USER"), new SimpleGrantedAuthority("ROLE_ADMIN"))
                 : List.of(new SimpleGrantedAuthority("ROLE_USER"));
