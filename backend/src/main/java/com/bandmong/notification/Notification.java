@@ -57,8 +57,8 @@ public class Notification {
         if (createdAt == null) createdAt = Instant.now();
     }
 
-    public void markRead() {
-        if (readAt == null) readAt = Instant.now();
+    public void markRead(Instant now) {
+        if (readAt == null) readAt = now;
     }
 
     public Long getId() { return id; }

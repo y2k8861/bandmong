@@ -21,7 +21,10 @@ public class BlockService {
     private final UserBlockRepository blocks;
     private final UserRepository users;
 
-    public BlockService(UserBlockRepository blocks, UserRepository users) {
+    private final java.time.Clock clock;
+
+    public BlockService(UserBlockRepository blocks, UserRepository users, java.time.Clock clock) {
+        this.clock = clock;
         this.blocks = blocks;
         this.users = users;
     }
@@ -34,7 +37,7 @@ public class BlockService {
         users.findById(targetId).filter(u -> !u.isDeleted())
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "차단할 사용자를 찾을 수 없어요"));
         if (blocks.findByBlockerIdAndBlockedId(userId, targetId).isEmpty()) {
-            blocks.save(new UserBlock(userId, targetId));
+            blocks.save(new UserBlock(userId, targetId, clock.instant()));
         }
         return list(userId);
     }

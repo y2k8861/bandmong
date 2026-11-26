@@ -64,39 +64,39 @@ public class Gig {
     protected Gig() {
     }
 
-    public Gig(Band band, User createdBy, String title, Instant startsAt, String venue, int slotMinutes) {
+    public Gig(Band band, User createdBy, String title, Instant startsAt, String venue, int slotMinutes, Instant now) {
         this.band = band;
         this.createdBy = createdBy;
         this.title = title;
         this.startsAt = startsAt;
         this.venue = venue;
         this.slotMinutes = slotMinutes;
-        this.updatedAt = Instant.now();
+        this.updatedAt = now;
     }
 
-    /** 큐시트 통째로 바꾸기. updatedAt을 바꿔 버전이 확실히 오르게 한다. */
-    public void replaceItems(List<CueItem> next) {
+    /** 큐시트 통째로 바꾸기. 버전 올리기는 GigRepository.findForCueUpdate의 강제 증가 잠금이 맡는다. */
+    public void replaceItems(List<CueItem> next, Instant now) {
         items.clear();
         for (int i = 0; i < next.size(); i++) {
             CueItem it = next.get(i);
             it.attach(this, i);
             items.add(it);
         }
-        updatedAt = Instant.now();
+        updatedAt = now;
     }
 
 
-    public void update(String title, Instant startsAt, String venue, Integer slotMinutes) {
+    public void update(String title, Instant startsAt, String venue, Integer slotMinutes, Instant now) {
         if (title != null) this.title = title;
         if (startsAt != null) this.startsAt = startsAt;
         if (venue != null) this.venue = venue.isBlank() ? null : venue.trim();
         if (slotMinutes != null) this.slotMinutes = slotMinutes;
-        updatedAt = Instant.now();
+        updatedAt = now;
     }
 
-    public void cancel() {
+    public void cancel(Instant now) {
         status = GigStatus.CANCELED;
-        updatedAt = Instant.now();
+        updatedAt = now;
     }
 
     public int totalSeconds() {

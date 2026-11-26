@@ -70,7 +70,7 @@ public class DuesService {
 
         var existing = payments.findByBandIdAndUserIdAndMonth(bandId, targetId, m.toString());
         if (paid && existing.isEmpty()) {
-            payments.save(new DuesPayment(band, target.getUser(), m.toString(), band.getDuesAmount(), userId));
+            payments.save(new DuesPayment(band, target.getUser(), m.toString(), band.getDuesAmount(), userId, clock.instant()));
         } else if (!paid) {
             existing.ifPresent(payments::delete);
         }

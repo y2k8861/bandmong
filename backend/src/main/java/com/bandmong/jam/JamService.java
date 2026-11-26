@@ -171,7 +171,7 @@ public class JamService {
         if (!jam.getStartsAt().isAfter(clock.instant())) throw conflict("이미 시작한 합주는 답을 바꿀 수 없어요");
 
         rsvps.findByJamIdAndUserId(jamId, userId).ifPresentOrElse(
-                x -> x.answer(answer),
+                x -> x.answer(answer, clock.instant()),
                 () -> rsvps.save(new JamRsvp(jam, memberUser(list, userId), answer)));
         rsvps.flush();
         return view(jam, list, userId, true);

@@ -56,11 +56,11 @@ public class GigService {
         BandMember me = list.stream().filter(m -> m.getUser().getId().equals(userId)).findFirst().orElseThrow();
 
         Gig gig = new Gig(band, me.getUser(), r.title().trim(), validStart(r.startsAt()),
-                r.venue() == null || r.venue().isBlank() ? null : r.venue().trim(), r.slotMinutes());
+                r.venue() == null || r.venue().isBlank() ? null : r.venue().trim(), r.slotMinutes(), clock.instant());
         // 큐시트 초안: 여는 인사와 마무리 인사. 곡은 멤버들이 채운다.
         gig.replaceItems(new java.util.ArrayList<>(List.of(
                 new CueItem(CueType.MC, "여는 인사·밴드 소개", 60),
-                new CueItem(CueType.MC, "마무리 인사", 45))));
+                new CueItem(CueType.MC, "마무리 인사", 45))), clock.instant());
         gigs.save(gig);
         DEFAULT_CHECKS.forEach(t -> gig.getChecks().add(new GigCheck(gig, t)));
         gigs.flush();
@@ -86,7 +86,7 @@ public class GigService {
         if (!g.getBand().isHost(userId)) throw forbidden("방장만 공연 정보를 바꿀 수 있어요");
         requireOpen(g);
         g.update(r.title() == null ? null : r.title().trim(), r.startsAt() == null ? null : validStart(r.startsAt()),
-                r.venue(), r.slotMinutes());
+                r.venue(), r.slotMinutes(), clock.instant());
         gigs.flush();
         return view(g, userId, members.findByBandWithUser(g.getBand().getId()));
     }
@@ -95,7 +95,7 @@ public class GigService {
         Gig g = gig(gigId);
         if (!g.getBand().isHost(userId)) throw forbidden("방장만 공연을 취소할 수 있어요");
         requireOpen(g);
-        g.cancel();
+        g.cancel(clock.instant());
         gigs.flush();
         return view(g, userId, members.findByBandWithUser(g.getBand().getId()));
     }
@@ -105,12 +105,12 @@ public class GigService {
      * 확인과 저장 사이에 다른 저장이 끼어들면 @Version이 UPDATE … WHERE version=? 로 한 번 더 막는다.
      */
     public GigView saveItems(Long userId, Long gigId, GigRequests.Items r) {
-        Gig g = gig(gigId);
+        Gig g = gigs.findForCueUpdate(gigId).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "공연을 찾을 수 없어요"));
         List<BandMember> list = requireMember(g.getBand().getId(), userId);
         requireOpen(g);
         if (g.getVersion() != r.version()) throw new ApiException(HttpStatus.CONFLICT, STALE);
         g.replaceItems(r.items().stream().map(i -> new CueItem(i.type(), i.title().trim(), i.durationSec()))
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList()), clock.instant());
         gigs.flush();
         return view(g, userId, list);
     }

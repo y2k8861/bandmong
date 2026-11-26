@@ -29,7 +29,7 @@ class SchemaRulesTest {
     private static final Path MIGRATIONS = Path.of("src/main/resources/db/migration");
 
     /** H2 2.x 예약어 + MySQL 8에서 자주 걸리는 예약어. 컬럼·테이블 이름으로 쓰면 SQL이 깨진다. */
-    private static final Set<String> RESERVED = Set.of((
+    private static final Set<String> RESERVED = new HashSet<>(Arrays.asList((
             "all and any array as asymmetric authorization between both case cast check constraint cross "
             + "current_date current_time current_timestamp current_user day default distinct else end except exists "
             + "false fetch for foreign from full group groups having hour if ilike in inner intersect interval is "
@@ -41,7 +41,7 @@ class SchemaRulesTest {
             + "explain function grant index insert int interval into key keys kill lead lag lock long match mod "
             + "option outer precision procedure rank read references release rename repeat replace require "
             + "restrict return revoke schema show signal sql start trigger update usage use while write"
-    ).split(" "));
+    ).split(" ")));
 
     private static List<Class<?>> entities;
     private static Map<String, String> ddlByTable;

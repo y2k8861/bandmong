@@ -27,10 +27,10 @@ public class UserBlock {
     protected UserBlock() {
     }
 
-    public UserBlock(Long blockerId, Long blockedId) {
+    public UserBlock(Long blockerId, Long blockedId, Instant now) {
         this.blockerId = blockerId;
         this.blockedId = blockedId;
-        this.createdAt = Instant.now();
+        this.createdAt = now;
     }
 
     public Long getBlockerId() { return blockerId; }

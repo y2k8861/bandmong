@@ -56,9 +56,9 @@ public class BandApplication {
         if (createdAt == null) createdAt = Instant.now();
     }
 
-    public void decide(ApplicationStatus next) {
+    public void decide(ApplicationStatus next, Instant now) {
         this.status = next;
-        this.decidedAt = Instant.now();
+        this.decidedAt = now;
     }
 
     public boolean isPending() {

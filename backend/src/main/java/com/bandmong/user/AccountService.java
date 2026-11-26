@@ -74,7 +74,7 @@ public class AccountService {
                 bandService.leave(userId, m.getBand().getId());
             }
         }
-        applications.findByUserAndStatus(userId, PENDING).forEach(a -> a.decide(CANCELED));
+        applications.findByUserAndStatus(userId, PENDING).forEach(a -> a.decide(CANCELED, clock.instant()));
         appAuth.revokeAll(userId); // 모든 기기 로그아웃 + 푸시 끊기
         me.withdraw(clock.instant());
     }

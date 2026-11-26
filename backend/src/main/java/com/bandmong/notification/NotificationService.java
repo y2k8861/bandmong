@@ -61,7 +61,7 @@ public class NotificationService {
         Notification n = repo.findById(id)
                 .filter(x -> x.getUser().getId().equals(userId)) // 남의 알림은 없는 것처럼
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "알림을 찾을 수 없어요"));
-        n.markRead();
+        n.markRead(clock.instant());
         return NotificationView.of(n);
     }
 

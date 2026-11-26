@@ -38,9 +38,9 @@ public class JamRsvp {
         answer(answer);
     }
 
-    public void answer(RsvpAnswer answer) {
+    public void answer(RsvpAnswer answer, Instant now) {
         this.answer = answer;
-        this.updatedAt = Instant.now();
+        this.updatedAt = now;
     }
 
     public Long getId() { return id; }

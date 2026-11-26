@@ -42,13 +42,13 @@ public class DuesPayment {
     protected DuesPayment() {
     }
 
-    public DuesPayment(Band band, User user, String month, int amount, Long markedBy) {
+    public DuesPayment(Band band, User user, String month, int amount, Long markedBy, Instant now) {
         this.band = band;
         this.user = user;
         this.month = month;
         this.amount = amount;
         this.markedBy = markedBy;
-        this.paidAt = Instant.now();
+        this.paidAt = now;
     }
 
     public User getUser() { return user; }

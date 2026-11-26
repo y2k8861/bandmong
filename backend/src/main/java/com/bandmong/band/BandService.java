@@ -36,11 +36,14 @@ public class BandService {
     private final ApplicationEventPublisher events;
     private final com.bandmong.moderation.BlockService blocks;
     private final com.bandmong.web.ProfanityFilter profanity;
+    private final java.time.Clock clock;
 
     public BandService(BandRepository bands, BandMemberRepository members,
                        BandApplicationRepository applications, UserRepository users, JamService jams,
                        ChatService chat, ApplicationEventPublisher events,
-                       com.bandmong.moderation.BlockService blocks, com.bandmong.web.ProfanityFilter profanity) {
+                       com.bandmong.moderation.BlockService blocks, com.bandmong.web.ProfanityFilter profanity,
+                       java.time.Clock clock) {
+        this.clock = clock;
         this.blocks = blocks;
         this.profanity = profanity;
         this.bands = bands;
@@ -191,7 +194,7 @@ public class BandService {
     public BandDetail cancel(Long userId, Long bandId) {
         BandApplication app = applications.findFirstByBandIdAndUserIdAndStatus(bandId, userId, PENDING)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "대기 중인 지원이 없어요"));
-        app.decide(CANCELED);
+        app.decide(CANCELED, clock.instant());
         return detail(userId, bandId);
     }
 
@@ -211,7 +214,7 @@ public class BandService {
             throw conflict(app.getInstrument().label() + " 빈자리가 방금 찼어요. 자리를 늘린 뒤 수락해 주세요");
         }
         members.save(new BandMember(band, app.getUser(), app.getInstrument(), MemberRole.MEMBER));
-        app.decide(ACCEPTED);
+        app.decide(ACCEPTED, clock.instant());
         events.publishEvent(new Events.ApplicationDecided(bandId, app.getUser().getId(), app.getInstrument(), true));
         return detail(userId, bandId);
     }
@@ -220,7 +223,7 @@ public class BandService {
         Band band = lockBand(bandId);
         requireHost(band, userId);
         BandApplication app = pendingApplication(bandId, applicationId);
-        app.decide(REJECTED);
+        app.decide(REJECTED, clock.instant());
         events.publishEvent(new Events.ApplicationDecided(bandId, app.getUser().getId(), app.getInstrument(), false));
         return detail(userId, bandId);
     }
