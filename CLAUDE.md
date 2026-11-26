@@ -74,7 +74,7 @@ frontend/ios            Capacitor iOS 프로젝트
 - 컬럼 이름 `month` → H2 테스트 전체 실패 → `due_month`로 변경 (SchemaRulesTest 예약어 검사)
 - MockMvc가 본문을 ISO-8859-1로 읽어 한글 비교 실패 (UTF-8 규칙)
 - 엔티티 11곳(정산·회비 납부·지원 결정·공연 수정 등)이 `Instant.now()`를 직접 써서 시간 고정 테스트가 안 먹혔음 (Clock 규칙이 처음 돌 때 찾아냄)
-- 큐시트 버전 증가를 `updatedAt` 시각 변경에 기대고 있었음 → 시계를 고정하면 동시 저장 충돌을 못 잡음. 지금은 `OPTIMISTIC_FORCE_INCREMENT`
+- 큐시트 버전 증가를 `updatedAt` 시각 변경에 기대고 있었음 → 시계를 고정하면 동시 저장 충돌을 못 잡음. 지금은 `Gig.touch()`가 시각을 반드시 앞으로 옮김
 - 한국 시간 `+ 9 * 3600_000` 계산이 화면 5곳에 복사돼 있었음 → lib/time.ts로 모음 (ESLint)
 
 ## 하지 말 것

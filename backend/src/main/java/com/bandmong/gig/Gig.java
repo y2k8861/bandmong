@@ -74,7 +74,7 @@ public class Gig {
         this.updatedAt = now;
     }
 
-    /** 큐시트 통째로 바꾸기. 버전 올리기는 GigRepository.findForCueUpdate의 강제 증가 잠금이 맡는다. */
+    /** 큐시트 통째로 바꾸기. 줄(items)만 바뀌어도 touch()로 공연 행을 바꿔 @Version이 확실히 오르게 한다. */
     public void replaceItems(List<CueItem> next, Instant now) {
         items.clear();
         for (int i = 0; i < next.size(); i++) {
@@ -82,7 +82,7 @@ public class Gig {
             it.attach(this, i);
             items.add(it);
         }
-        updatedAt = now;
+        touch(now);
     }
 
 
@@ -91,12 +91,20 @@ public class Gig {
         if (startsAt != null) this.startsAt = startsAt;
         if (venue != null) this.venue = venue.isBlank() ? null : venue.trim();
         if (slotMinutes != null) this.slotMinutes = slotMinutes;
-        updatedAt = now;
+        touch(now);
+    }
+
+    /**
+     * 수정 시각을 반드시 앞으로 옮긴다. 시계가 멈춰 있어도(테스트의 고정 시계, 같은 마이크로초 안의 두 저장)
+     * 값이 바뀌어야 Hibernate가 행을 더티로 보고 버전을 올린다.
+     */
+    private void touch(Instant now) {
+        updatedAt = updatedAt != null && !now.isAfter(updatedAt) ? updatedAt.plusNanos(1_000) : now;
     }
 
     public void cancel(Instant now) {
         status = GigStatus.CANCELED;
-        updatedAt = now;
+        touch(now);
     }
 
     public int totalSeconds() {

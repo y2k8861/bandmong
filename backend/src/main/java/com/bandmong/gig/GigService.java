@@ -105,7 +105,7 @@ public class GigService {
      * 확인과 저장 사이에 다른 저장이 끼어들면 @Version이 UPDATE … WHERE version=? 로 한 번 더 막는다.
      */
     public GigView saveItems(Long userId, Long gigId, GigRequests.Items r) {
-        Gig g = gigs.findForCueUpdate(gigId).orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "공연을 찾을 수 없어요"));
+        Gig g = gig(gigId);
         List<BandMember> list = requireMember(g.getBand().getId(), userId);
         requireOpen(g);
         if (g.getVersion() != r.version()) throw new ApiException(HttpStatus.CONFLICT, STALE);
