@@ -5,6 +5,7 @@ import { getMessages, markRead, newClientId, sendMessage } from '../api/chat';
 import type { Me, MessageView } from '../api/types';
 import { useStream, useStreamEvent } from '../lib/stream';
 import ReportSheet from '../components/ReportSheet';
+import { blockUser } from '../api/app';
 import { useLoad } from '../lib/useLoad';
 import { fmtTime } from '../lib/time';
 
@@ -170,7 +171,16 @@ export default function ChatPage({ me }: { me: Me }) {
                   </span>
                 </div>
                 {picked === m.id && !mine && (
-                  <button className="link-btn msg-report" onClick={() => { setReporting(m); setPicked(null); }}>이 메시지 신고</button>
+                  <span className="row">
+                    <button className="link-btn msg-report" onClick={() => { setReporting(m); setPicked(null); }}>이 메시지 신고</button>
+                    <button className="link-btn msg-report" onClick={async () => {
+                      setPicked(null);
+                      try {
+                        await blockUser(m.senderId!);
+                        setMsgs((cur) => cur.filter((x) => x.senderId !== m.senderId)); // 차단한 사람 메시지는 바로 지운다
+                      } catch { /* 실패하면 그대로 둔다 */ }
+                    }}>{m.senderNickname}님 차단</button>
+                  </span>
                 )}
                 {m.state === 'failed' && (
                   <div className="fail">

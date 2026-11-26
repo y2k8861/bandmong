@@ -49,6 +49,7 @@ HTML 한 파일짜리 프로토타입을 **Spring Boot + React** 서비스 구�
 - **채팅** — OFFSET 대신 id 커서 페이지, 멤버별 읽음 위치 하나로 안 읽은 수 계산, `clientId`로 재전송 중복 방지
 - **시간** — UTC로 저장하고 "이번 주"·요일은 한국 시간으로 판단, `Clock` 주입으로 시간 경과 테스트 ([자세히](docs/stage-03.md))
 - **세션 + CSRF 쿠키** (JWT 대신) — 웹앱 하나만 쓰는 서비스, 토큰을 브라우저 저장소에 두지 않음 ([자세히](docs/stage-01.md))
+- **iOS 앱은 같은 서버에 Bearer 토큰으로** — 앱은 출처가 달라 쿠키가 막히므로 해시로 저장하는 앱 토큰 + 1회용 코드로 소셜 로그인 복귀, 웹 흐름은 그대로 ([자세히](docs/stage-07.md))
 - **운영 DB는 Flyway만 바꾸고 `validate`** — CI가 push마다 실제 MySQL 8.4에 운영 설정 그대로 붙여 검증 ([자세히](docs/stage-06.md))
 
 ## 구조
@@ -83,6 +84,7 @@ flowchart LR
 | 실시간 | SSE(Server-Sent Events) — 채팅·알림 |
 | DB 마이그레이션 | Flyway (운영 MySQL은 `ddl-auto: validate`) |
 | 배포 | Docker, nginx, Caddy(https), GHCR, AWS EC2 + RDS |
+| 앱 | Capacitor 7 (iOS), Apple로 로그인, Firebase Cloud Messaging 푸시 |
 | CI/CD | GitHub Actions: 테스트 → MySQL 검증 → 전체 묶음 스모크 테스트 → 이미지 푸시 → (수동) EC2 배포 |
 
 ## 폴더 구조
@@ -91,6 +93,7 @@ flowchart LR
 bandmong/
 ├── backend/    Spring Boot API 서버 (포트 8080)
 ├── frontend/   React 앱 (개발 서버 5173, /api는 8080으로 프록시)
+│   └── ios/    Capacitor iOS 프로젝트
 └── docs/       단계별 설계 기록
 ```
 
@@ -128,6 +131,7 @@ AWS EC2 + RDS(MySQL) + Docker + GitHub Actions 구성으로 준비되어 있다.
 - push마다 CI가 ① 백엔드·프론트 테스트 ② **실제 MySQL**에 운영 설정으로 붙여 마이그레이션 검증
   ③ docker compose로 전체를 띄워 실제 요청 확인 ④ 이미지를 GHCR에 푸시
 - 배포는 Actions의 Deploy를 손으로 실행 (이미지 태그로 되돌리기 가능)
+- iOS 앱은 Actions의 **iOS TestFlight**를 손으로 실행 (맥 없이 빌드·서명·업로드) → [iOS 출시 가이드](docs/ios-release.md)
 
 ## 진행 상황
 
@@ -137,3 +141,4 @@ AWS EC2 + RDS(MySQL) + Docker + GitHub Actions 구성으로 준비되어 있다.
 - [x] **4단계** 밴드 채팅, 알림, 실시간 연결(SSE) — [설계 기록](docs/stage-04.md)
 - [x] **5단계** 합주실 예약·1인 정산·월 회비, 공연 큐시트·체크리스트 — [설계 기록](docs/stage-05.md)
 - [x] **6단계** 신고·관리자 처리·이용 제한, 방장 넘기기·탈퇴, 배포 준비(Flyway·Docker·CI/CD·AWS 가이드) — [설계 기록](docs/stage-06.md)
+- [x] **7단계** iOS 앱(Capacitor), Apple 로그인, 푸시 알림, 욕설 필터·차단, TestFlight 자동 업로드 — [설계 기록](docs/stage-07.md)

@@ -9,6 +9,9 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
       JAVA_OPTS: -Xmx512m -XX:+ExitOnOutOfMemoryError
+    # 푸시용 Firebase 서비스 계정 JSON 등 (FCM_CREDENTIALS=/run/secrets/fcm.json)
+    volumes:
+      - ./secrets:/run/secrets:ro
     logging:
       driver: json-file
       options: { max-size: "10m", max-file: "5" }

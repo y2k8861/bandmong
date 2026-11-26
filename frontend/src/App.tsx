@@ -19,6 +19,10 @@ import GigPage from './pages/GigPage';
 import AdminPage from './pages/AdminPage';
 import NotificationsPage from './pages/NotificationsPage';
 import { StreamProvider } from './lib/stream';
+import { isApp, loadToken } from './lib/platform';
+import { setupPush } from './lib/native';
+import { useNavigate } from 'react-router-dom';
+import { useRef } from 'react';
 
 type Boot = { state: 'loading' } | { state: 'error'; message: string } | { state: 'ready'; providers: Providers; me: Me | null };
 
@@ -26,10 +30,21 @@ const withTabs = (page: ReactNode) => <>{page}<TabBar /></>;
 
 export default function App() {
   const [boot, setBoot] = useState<Boot>({ state: 'loading' });
+  const navigate = useNavigate();
+  const pushDone = useRef<number | null>(null);
+
+  // 앱: 로그인·온보딩을 마친 뒤 한 번 푸시 권한을 묻고 기기를 등록한다
+  const meId = boot.state === 'ready' && boot.me?.onboarded ? boot.me.id : null;
+  useEffect(() => {
+    if (!isApp || meId === null || pushDone.current === meId) return;
+    pushDone.current = meId;
+    setupPush(navigate);
+  }, [meId, navigate]);
 
   const load = useCallback(async () => {
     try {
       // providers 요청이 CSRF 쿠키도 받아 온다. 그다음 로그인 여부 확인.
+      await loadToken(); // 앱: 저장해 둔 로그인 토큰 (웹은 아무것도 안 함)
       const providers = await getProviders();
       let me: Me | null = null;
       try {

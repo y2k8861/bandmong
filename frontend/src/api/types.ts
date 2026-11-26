@@ -16,6 +16,8 @@ export interface Me {
 export interface Providers {
   providers: string[];
   devLogin: boolean;
+  /** 고객센터 연락처 (앱 안에 공개) */
+  supportEmail?: string;
 }
 
 export interface ProfileInput {

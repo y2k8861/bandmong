@@ -10,6 +10,7 @@ import SeatStepper from '../components/SeatStepper';
 import Sheet from '../components/Sheet';
 import ReportSheet from '../components/ReportSheet';
 import { transferHost } from '../api/moderation';
+import { blockUser } from '../api/app';
 import { ago, genreName, openCount, seatError } from '../lib/band';
 import { LEVELS, instrumentName } from '../lib/profile';
 import { useLoad } from '../lib/useLoad';
@@ -198,6 +199,11 @@ export default function BandDetailPage({ me }: { me: Me }) {
           )}
           {band.me === 'HOST' && <p className="sub">넘기면 지원자 수락·합주 확정·예약을 {member.nickname}님이 맡고, 나는 일반 멤버가 돼요.</p>}
           <button className="btn-ghost wide danger-text" onClick={() => { setReportUser(member); setMember(null); }}>{member.nickname}님 신고</button>
+          <button className="btn-ghost wide" onClick={async () => {
+            try { await blockUser(member.userId); setToast(`${member.nickname}님을 차단했어요. 채팅에서 이 사람의 메시지가 보이지 않아요`); }
+            catch (e) { setToast(e instanceof Error ? e.message : '차단하지 못했어요'); }
+            setMember(null); setTimeout(() => setToast(null), 2600);
+          }}>{member.nickname}님 차단</button>
         </Sheet>
       )}
       {reportUser && <ReportSheet target="USER" id={reportUser.userId} label={`${reportUser.nickname}님`} onClose={() => setReportUser(null)} />}

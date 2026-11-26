@@ -301,3 +301,13 @@ a.btn-dark.wide { height: 46px; border-radius: 12px; }
 .admin-link .sub { color: var(--amber); }
 .report { gap: 8px; }
 .report .row.wrap .btn-ghost { height: 34px; }
+
+/* ── 7단계: 앱 ── */
+.social-btn.apple { background: #000; color: #fff; border: 1px solid #333; }
+button.social-btn { width: 100%; border: none; font-family: inherit; cursor: pointer; }
+button.social-btn:disabled { opacity: .6; }
+.fine a { color: inherit; }
+.select { user-select: all; -webkit-user-select: all; }
+/* 아이폰 노치·홈 바 */
+.app { padding-top: env(safe-area-inset-top, 0px); }
+.tabbar { padding-bottom: env(safe-area-inset-bottom, 0px); }

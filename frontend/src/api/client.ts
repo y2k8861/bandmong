@@ -1,4 +1,7 @@
-// 스프링 API 호출. 세션 쿠키를 같이 보내고, 쓰기 요청에는 CSRF 헤더를 붙인다.
+// 스프링 API 호출.
+// 웹: 세션 쿠키를 같이 보내고, 쓰기 요청에는 CSRF 헤더를 붙인다.
+// 앱: 운영 서버 주소로, 로그인 토큰을 Authorization 헤더에 (쿠키·CSRF 없음).
+import { apiBase, getToken, isApp } from '../lib/platform';
 
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
@@ -17,11 +20,14 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
   if (init.body !== undefined && !headers.has('Content-Type')) {
     headers.set('Content-Type', 'application/json');
   }
-  if (method !== 'GET' && method !== 'HEAD') {
+  if (isApp) {
+    const t = getToken();
+    if (t) headers.set('Authorization', `Bearer ${t}`);
+  } else if (method !== 'GET' && method !== 'HEAD') {
     const token = readCookie('XSRF-TOKEN');
     if (token) headers.set('X-XSRF-TOKEN', token);
   }
-  const res = await fetch(path, { ...init, method, headers, credentials: 'same-origin' });
+  const res = await fetch(apiBase + path, { ...init, method, headers, credentials: isApp ? 'omit' : 'same-origin' });
   if (!res.ok) {
     let message = '잠시 후 다시 시도해 주세요';
     try {

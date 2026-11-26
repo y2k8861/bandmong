@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { getUnread } from '../api/notifications';
+import { apiBase, getToken, isApp } from './platform';
 import type { MessageView, NotificationView } from '../api/types';
 
 /**
@@ -43,7 +44,9 @@ export function StreamProvider({ children }: { children: ReactNode }) {
     if (typeof EventSource === 'undefined') return;
 
     const emit = (name: string, data: unknown) => listeners.current.get(name)?.forEach((fn) => fn(data));
-    const es = new EventSource('/api/stream', { withCredentials: true });
+    // 앱은 EventSource에 헤더를 못 붙여서 토큰을 주소에 싣는다 (서버는 /api/stream에서만 받음)
+    const url = isApp ? `${apiBase}/api/stream?access_token=${encodeURIComponent(getToken() ?? '')}` : '/api/stream';
+    const es = new EventSource(url, { withCredentials: !isApp });
     let dropped = false;
 
     es.addEventListener('ready', () => {

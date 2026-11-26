@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>밴드몽 개인정보 처리방침</title><link rel="stylesheet" href="/legal.css"></head>
+<body><main>
+<h1>개인정보 처리방침</h1>
+<p class="meta">시행일: 출시일에 맞춰 적어 주세요 · 운영자: 이승호</p>
+<p class="draft">초안입니다. 실제 서비스 전에 내용을 검토하고, 필요하면 전문가 확인을 받아 주세요.</p>
+
+<h2>1. 모으는 정보</h2>
+<table>
+<tr><th>항목</th><th>언제</th><th>왜</th></tr>
+<tr><td>소셜 계정 식별값, 이메일(제공될 때)</td><td>로그인할 때 (카카오·네이버·구글·Apple)</td><td>회원 구분, 로그인 유지</td></tr>
+<tr><td>닉네임, 활동 지역, 악기·실력, 소개</td><td>프로필을 만들 때</td><td>밴드 찾기와 멤버 매칭</td></tr>
+<tr><td>밴드·합주·공연·회비·연습실 기록, 채팅 메시지</td><td>서비스를 쓸 때</td><td>밴드 운영 기능 제공</td></tr>
+<tr><td>신고·차단 기록</td><td>신고하거나 차단할 때</td><td>부적절한 이용 막기</td></tr>
+<tr><td>푸시 알림 토큰, 기기 종류(iOS/Android)</td><td>앱에서 알림을 허용할 때</td><td>새 알림 보내기</td></tr>
+<tr><td>접속 기록(IP, 시간)</td><td>자동으로</td><td>보안, 장애 대응</td></tr>
+</table>
+<p>위치, 연락처, 사진, 광고 식별자는 모으지 않습니다. 광고나 추적 목적으로 정보를 쓰지 않습니다.</p>
+
+<h2>2. 보관 기간</h2>
+<p>탈퇴하면 프로필을 지우고 이름을 '탈퇴한 사용자'로 바꿉니다. 로그인 토큰과 푸시 토큰은 바로 지웁니다. 다른 멤버와 함께 쓰는 기록(채팅, 회비 내역 등)은 밴드 운영을 위해 남되 본인을 알아볼 수 없게 됩니다. 법에서 보관을 요구하는 기록은 그 기간 동안 보관합니다.</p>
+
+<h2>3. 다른 곳에 맡기는 일</h2>
+<table>
+<tr><th>받는 곳</th><th>하는 일</th></tr>
+<tr><td>Amazon Web Services</td><td>서버, 데이터베이스 운영</td></tr>
+<tr><td>Google Firebase</td><td>앱 푸시 알림 전달</td></tr>
+<tr><td>카카오, 네이버, 구글, Apple</td><td>소셜 로그인 (사용자가 고른 곳만)</td></tr>
+</table>
+<p>그 밖에 개인정보를 남에게 팔거나 넘기지 않습니다.</p>
+
+<h2>4. 내 권리</h2>
+<p>앱의 '내 정보'에서 프로필을 고치거나 언제든 탈퇴할 수 있습니다. 열람·정정·삭제 요청은 아래 연락처로 보내 주세요.</p>
+
+<h2>5. 안전하게 지키는 방법</h2>
+<p>모든 통신은 HTTPS로 암호화합니다. 앱 로그인 토큰은 원문이 아닌 해시값으로만 저장합니다.</p>
+
+<h2>6. 문의</h2>
+<p>개인정보 보호 책임자: 이승호 · 이메일: <span id="mail">앱의 '내 정보 &gt; 문의'에 적힌 주소</span></p>
+</main>
+<script>fetch('/api/auth/providers').then(r=>r.json()).then(p=>{if(p.supportEmail){const a=document.createElement('a');a.href='mailto:'+p.supportEmail;a.textContent=p.supportEmail;document.getElementById('mail').replaceChildren(a)}}).catch(()=>{})</script>
+</body></html>
