@@ -5,9 +5,8 @@ import { book, getSlots, getStudios } from '../api/studios';
 import type { SlotsView } from '../api/types';
 import { useLoad } from '../lib/useLoad';
 import { hourLabel, perPerson, won } from '../lib/money';
-import { DAYS, addDays } from '../lib/time';
+import { DAYS, addDays, todayKst } from '../lib/time';
 
-const todayKst = () => new Date(Date.now() + 9 * 3600_000).toISOString().slice(0, 10);
 
 /** 합주실 찾기 → 방 → 날짜 → 시간 고르기 → 예약. ?date=&hour=&hours=&jam= 으로 미리 채울 수 있다(합주 상세에서). */
 export default function StudioPage() {

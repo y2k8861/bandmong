@@ -153,7 +153,7 @@ public class BookingService {
         if (!userId.equals(targetId) && !b.getBand().isHost(userId)) throw forbidden("다른 사람 몫은 방장만 바꿀 수 있어요");
         settles.findByBookingIdAndUserId(bookingId, targetId)
                 .orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "정산할 몫이 없어요"))
-                .setPaid(paid);
+                .setPaid(paid, clock.instant());
         settles.flush();
         return view(b, userId);
     }

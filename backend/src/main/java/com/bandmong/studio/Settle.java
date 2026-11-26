@@ -38,8 +38,8 @@ public class Settle {
         this.amount = amount;
     }
 
-    public void setPaid(boolean paid) {
-        paidAt = paid ? (paidAt == null ? Instant.now() : paidAt) : null;
+    public void setPaid(boolean paid, Instant now) {
+        paidAt = paid ? (paidAt == null ? now : paidAt) : null;
     }
 
     public Long getId() { return id; }

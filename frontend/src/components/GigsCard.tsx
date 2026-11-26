@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { createGig, listGigs } from '../api/gigs';
 import { useLoad } from '../lib/useLoad';
 import { mmss } from '../lib/cue';
-import { addDays, dday, fmtDateTime, fromKstInput } from '../lib/time';
+import { addDays, dday, fmtDateTime, fromKstInput, todayKst } from '../lib/time';
 import Sheet from './Sheet';
 
 export default function GigsCard({ bandId, isHost }: { bandId: number; isHost: boolean }) {
@@ -37,7 +37,7 @@ export default function GigsCard({ bandId, isHost }: { bandId: number; isHost: b
 }
 
 function NewGigSheet({ onClose, onSubmit }: { onClose: () => void; onSubmit: (v: { title: string; startsAt: string; venue: string; slotMinutes: number }) => Promise<void> }) {
-  const today = new Date(Date.now() + 9 * 3600_000).toISOString().slice(0, 10);
+  const today = todayKst();
   const [title, setTitle] = useState('');
   const [date, setDate] = useState(addDays(today, 30));
   const [time, setTime] = useState('19:30');

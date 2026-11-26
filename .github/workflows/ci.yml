@@ -18,7 +18,7 @@ jobs:
           distribution: temurin
           java-version: '21'
       - uses: gradle/actions/setup-gradle@v4
-      - name: 테스트
+      - name: 테스트 (구조 규칙 com.bandmong.harness 포함)
         run: ./gradlew test --no-daemon
       - name: 테스트 결과 보관
         if: always()
@@ -72,6 +72,8 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
+      - name: 규칙 검사 (ESLint)
+        run: npm run lint
       - name: 테스트
         run: npm test
       - name: 빌드

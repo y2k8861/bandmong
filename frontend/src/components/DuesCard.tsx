@@ -3,9 +3,9 @@ import { getDues, setDuesPaid, setDuesSettings } from '../api/studios';
 import type { DuesView } from '../api/types';
 import { useLoad } from '../lib/useLoad';
 import { won } from '../lib/money';
+import { thisMonthKst } from '../lib/time';
 import Sheet from './Sheet';
 
-const thisMonth = () => new Date(Date.now() + 9 * 3600_000).toISOString().slice(0, 7);
 const shift = (m: string, n: number) => {
   const [y, mo] = m.split('-').map(Number);
   const d = new Date(Date.UTC(y, mo - 1 + n, 1));
@@ -14,7 +14,7 @@ const shift = (m: string, n: number) => {
 
 /** 밴드 상세: 월 회비 */
 export default function DuesCard({ bandId, myId }: { bandId: number; myId: number }) {
-  const [month, setMonth] = useState(thisMonth());
+  const [month, setMonth] = useState(thisMonthKst());
   const { data, setData, error } = useLoad(() => getDues(bandId, month), [bandId, month]);
   const [edit, setEdit] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
@@ -39,7 +39,7 @@ export default function DuesCard({ bandId, myId }: { bandId: number; myId: numbe
             <div className="row">
               <button className="btn-ghost" aria-label="이전 달" onClick={() => setMonth(shift(month, -1))}>‹</button>
               <b>{label} {won(data.amount)}</b>
-              <button className="btn-ghost" aria-label="다음 달" disabled={month >= shift(thisMonth(), 1)} onClick={() => setMonth(shift(month, 1))}>›</button>
+              <button className="btn-ghost" aria-label="다음 달" disabled={month >= shift(thisMonthKst(), 1)} onClick={() => setMonth(shift(month, 1))}>›</button>
             </div>
             <span className="sub">{data.paidCount}/{data.total}명 냄</span>
           </div>

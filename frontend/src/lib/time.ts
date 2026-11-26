@@ -8,6 +8,13 @@ const shift = (d: Date) => new Date(d.getTime() + OFFSET); // getUTC*로 읽으�
 const pad = (n: number) => String(n).padStart(2, '0');
 const ymd = (d: Date) => `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`;
 
+/** 한국 날짜 'YYYY-MM-DD' (기기 시간대와 상관없이) */
+export const todayKst = (now = Date.now()): string => ymd(new Date(now + OFFSET));
+/** 그 시각의 한국 날짜 'YYYY-MM-DD' */
+export const kstDate = (iso: string): string => todayKst(Date.parse(iso));
+/** 한국 기준 이번 달 'YYYY-MM' */
+export const thisMonthKst = (now = Date.now()): string => todayKst(now).slice(0, 7);
+
 /** 'YYYY-MM-DD' + n일 */
 export function addDays(date: string, n: number): string {
   const [y, m, d] = date.split('-').map(Number);

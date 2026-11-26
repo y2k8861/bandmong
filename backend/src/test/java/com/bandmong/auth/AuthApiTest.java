@@ -1,5 +1,7 @@
 package com.bandmong.auth;
 
+import java.nio.charset.StandardCharsets;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -36,10 +38,10 @@ class AuthApiTest {
         String body = "{\"name\":\"same-person\"}";
         String a = mvc.perform(post("/api/dev/login").with(csrf())
                         .contentType(MediaType.APPLICATION_JSON).content(body))
-                .andReturn().getResponse().getContentAsString();
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
         String b = mvc.perform(post("/api/dev/login").with(csrf())
                         .contentType(MediaType.APPLICATION_JSON).content(body))
-                .andReturn().getResponse().getContentAsString();
+                .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
         assertThat(id(a)).isEqualTo(id(b));
     }
 

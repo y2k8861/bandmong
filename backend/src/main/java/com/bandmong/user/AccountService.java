@@ -39,6 +39,20 @@ public class AccountService {
         this.clock = clock;
     }
 
+    /** 로그인한 사람의 계정. 세션은 남았는데 계정이 지워졌으면 401. */
+    @Transactional(readOnly = true)
+    public User active(Long userId) {
+        if (userId == null) throw new ApiException(HttpStatus.UNAUTHORIZED, "로그인이 필요해요");
+        return users.findById(userId).filter(u -> !u.isDeleted())
+                .orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "다시 로그인해 주세요"));
+    }
+
+    public User updateProfile(Long userId, ProfileRequest req) {
+        User u = active(userId);
+        u.updateProfile(req.nickname(), req.instruments(), req.level(), req.region());
+        return u;
+    }
+
     public void withdraw(Long userId) {
         User me = users.findById(userId).orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "다시 로그인해 주세요"));
         List<BandMember> mine = members.findByUserWithBand(userId);

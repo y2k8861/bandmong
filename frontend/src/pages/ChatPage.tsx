@@ -7,12 +7,12 @@ import { useStream, useStreamEvent } from '../lib/stream';
 import ReportSheet from '../components/ReportSheet';
 import { blockUser } from '../api/app';
 import { useLoad } from '../lib/useLoad';
-import { fmtTime } from '../lib/time';
+import { fmtTime, kstDate } from '../lib/time';
 
 /** 화면에만 있는 "보내는 중/실패" 메시지 */
 type Local = MessageView & { state?: 'sending' | 'failed' };
 
-const dayKey = (iso: string) => new Date(new Date(iso).getTime() + 9 * 3600_000).toISOString().slice(0, 10);
+const dayKey = kstDate;
 const dayLabel = (key: string) => {
   const [, m, d] = key.split('-').map(Number);
   const dow = ['일', '월', '화', '수', '목', '금', '토'][new Date(key + 'T00:00:00Z').getUTCDay()];
