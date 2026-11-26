@@ -50,6 +50,7 @@ HTML 한 파일짜리 프로토타입을 **Spring Boot + React** 서비스 구�
 - **시간** — UTC로 저장하고 "이번 주"·요일은 한국 시간으로 판단, `Clock` 주입으로 시간 경과 테스트 ([자세히](docs/stage-03.md))
 - **세션 + CSRF 쿠키** (JWT 대신) — 웹앱 하나만 쓰는 서비스, 토큰을 브라우저 저장소에 두지 않음 ([자세히](docs/stage-01.md))
 - **iOS 앱은 같은 서버에 Bearer 토큰으로** — 앱은 출처가 달라 쿠키가 막히므로 해시로 저장하는 앱 토큰 + 1회용 코드로 소셜 로그인 복귀, 웹 흐름은 그대로 ([자세히](docs/stage-07.md))
+- **규칙을 문서가 아니라 테스트로** — "알림은 이벤트로", "시각은 Clock으로", "엔티티 바꾸면 마이그레이션" 같은 팀 규칙을 ArchUnit·스키마 검사·ESLint로 강제하고, 실패 메시지에 고치는 법을 적었다. 처음 돌렸을 때 `Instant.now()` 11곳과 복사된 한국 시간 계산 5곳을 찾아 고쳤다 ([CLAUDE.md](CLAUDE.md), `./verify.sh`)
 - **운영 DB는 Flyway만 바꾸고 `validate`** — CI가 push마다 실제 MySQL 8.4에 운영 설정 그대로 붙여 검증 ([자세히](docs/stage-06.md))
 
 ## 구조
@@ -115,7 +116,7 @@ npm run dev
 브라우저에서 http://localhost:5173 을 열고 **개발용 로그인**에 아무 이름이나 넣으면 됩니다.
 같은 이름으로 다시 들어오면 같은 계정이에요.
 
-테스트: `cd backend && ./gradlew test`, `cd frontend && npm test`
+테스트: `./verify.sh` (백엔드 테스트 + 구조 규칙 + 프론트 lint·테스트·빌드). 작업 규칙은 [CLAUDE.md](CLAUDE.md)
 
 ### 운영과 같은 구성으로 한 번에 띄우기 (Docker)
 
