@@ -32,10 +32,10 @@ public class JamRsvp {
     protected JamRsvp() {
     }
 
-    public JamRsvp(Jam jam, User user, RsvpAnswer answer) {
+    public JamRsvp(Jam jam, User user, RsvpAnswer answer, Instant now) {
         this.jam = jam;
         this.user = user;
-        answer(answer);
+        answer(answer, now);
     }
 
     public void answer(RsvpAnswer answer, Instant now) {

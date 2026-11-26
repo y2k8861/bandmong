@@ -124,7 +124,7 @@ public class JamService {
 
         User host = memberUser(list, userId);
         Jam jam = jams.save(new Jam(band, host, start, r.durationMinutes(), blankToNull(r.place()), blankToNull(r.memo())));
-        rsvps.save(new JamRsvp(jam, host, RsvpAnswer.YES)); // 확정한 방장은 참석으로 시작
+        rsvps.save(new JamRsvp(jam, host, RsvpAnswer.YES, clock.instant())); // 확정한 방장은 참석으로 시작
         events.publishEvent(new Events.JamChanged(jam.getId(), userId, JamChange.SCHEDULED));
         return view(jam, list, userId, true);
     }
@@ -147,7 +147,7 @@ public class JamService {
         if (moved) {
             // 다른 시간에 대한 대답이었으므로 응답을 비우고 다시 받는다
             rsvps.deleteByJam(jamId);
-            rsvps.save(new JamRsvp(jam, memberUser(list, userId), RsvpAnswer.YES));
+            rsvps.save(new JamRsvp(jam, memberUser(list, userId), RsvpAnswer.YES, clock.instant()));
             events.publishEvent(new Events.JamChanged(jamId, userId, JamChange.MOVED));
         } else if (!before.equals(java.util.Arrays.asList(jam.getDurationMinutes(), jam.getPlace(), jam.getMemo()))) {
             events.publishEvent(new Events.JamChanged(jamId, userId, JamChange.EDITED));
@@ -172,7 +172,7 @@ public class JamService {
 
         rsvps.findByJamIdAndUserId(jamId, userId).ifPresentOrElse(
                 x -> x.answer(answer, clock.instant()),
-                () -> rsvps.save(new JamRsvp(jam, memberUser(list, userId), answer)));
+                () -> rsvps.save(new JamRsvp(jam, memberUser(list, userId), answer, clock.instant())));
         rsvps.flush();
         return view(jam, list, userId, true);
     }
