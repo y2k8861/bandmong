@@ -17,3 +17,6 @@ frontend/dist/
 frontend/*.tsbuildinfo
 deploy/secrets/
 *.p8
+
+# taste-skill 작업 기록 (소개 페이지)
+.taste-skill/

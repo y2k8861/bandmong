@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="ko" data-type="software" data-radius="soft" data-ground="sand" data-buttons="arrow" data-motion>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>밴드몽: 직장인 밴드의 멤버 모집과 합주 일정 관리</title>
+<meta name="description" content="퇴근 후 밴드를 하는 직장인이 빈자리로 멤버를 찾고, 시간 투표로 합주 날을 정하고, 합주실 비용과 회비를 나누는 무료 앱입니다.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="밴드몽: 직장인 밴드의 멤버 모집과 합주 일정 관리">
+<meta property="og:description" content="빈자리로 멤버를 찾고, 시간 투표로 합주 날을 정하는 무료 앱">
+<meta property="og:image" content="share.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#f7f6f2">
+<!-- <link rel="canonical" href="https://[밴드몽 도메인]/intro/"> 도메인이 정해지면 -->
+<meta name="site-kind" content="software">
+<meta name="page-type" content="software">
+<!-- 딜 받은 Familjen Grotesk에는 한글 글리프가 없어 같은 IBM Plex 계열의 한글 서체로 바꿨고, 이 페이지에 쓰인 글자만 잘라
+     직접 싣는다 (frontend/tools/intro-fonts.py: Google Fonts와 같은 OFL 파일, fontsource 5.1.0) -->
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="assets/system.css">
+<link rel="stylesheet" href="assets/ui/cards.css">
+<link rel="stylesheet" href="assets/motion/motion.css">
+<link rel="stylesheet" href="assets/backgrounds/backgrounds.css">
+<link rel="stylesheet" href="assets/layout/layout.css">
+<link rel="stylesheet" href="assets/icons/icon.css">
+<style>
+:root {
+  --p-bg: #f7f6f2; --p-surface: #eae9e6; --p-ink: #16181d; --p-muted: #626365;
+  --p-accent: #b87400; --p-accent-ink: #111111; --p-action: #b87400; --p-action-ink: #111111;
+  --p-inv-bg: #16181d; --p-inv-surface: #232529; --p-inv-ink: #f7f6f2; --p-inv-muted: #989999;
+  --p-inv-accent: #b87400; --p-inv-accent-ink: #111111; --p-inv-action: #b87400; --p-inv-action-ink: #111111;
+  --font-display: "IBM Plex Sans KR", system-ui, sans-serif;
+  --font-text: "IBM Plex Sans KR", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --display-weight: 500;
+  --display-tracking: -0.03em;
+  --display-tracking-xl: -0.04em;
+}
+</style>
+<link rel="stylesheet" href="assets/ui/base.css">
+<link rel="stylesheet" href="assets/ui/window/fragment.css">
+<link rel="stylesheet" href="assets/ui/calendar/fragment.css">
+<link rel="stylesheet" href="assets/ui/search/fragment.css">
+<link rel="stylesheet" href="assets/ui/notify/fragment.css">
+<link rel="stylesheet" href="assets/ui/checklist/fragment.css">
+<link rel="stylesheet" href="assets/moments/liquid-type/moment.css">
+<script>document.documentElement.classList.add('m-enter');setTimeout(()=>document.documentElement.classList.add('m-enter-done'),700)</script>
+<script src="assets/backgrounds/backgrounds.js"></script>
+<script>document.documentElement.classList.add('mo-js');setTimeout(()=>document.documentElement.classList.add('mo-safe'),2500)</script>
+<link rel="modulepreload" href="assets/moments/moments.js">
+<link rel="modulepreload" href="assets/moments/lib.js">
+<link rel="modulepreload" href="assets/moments/liquid-type/moment.js">
+<style>
+  /* 한글은 단어 중간에서 끊지 않는다 */
+  h1, h2, h3, p, li, dd { word-break: keep-all; }
+  /* 앱 화면 (.device): 실제 밴드몽 화면 캡처를 휴대폰 테두리에 넣는다 */
+  .device { position: absolute; z-index: 1; top: 56px; right: 56px; width: 300px; border-radius: 40px; border: 8px solid var(--p-ink); background: #fff; overflow: hidden; }
+  .device img { display: block; width: 100%; height: auto; }
+  .hero__media .device { right: 64px; width: 310px; }
+  #safety .device, #faq .device { top: 48px; right: 50%; transform: translateX(50%); width: 380px; }
+  .phone { border-radius: 32px; border: 8px solid var(--p-ink); background: #fff; overflow: hidden; }
+  .phone img { display: block; width: 100%; height: auto; }
+    .statement .t-lead { margin-top: var(--s-7); }
+  @media (max-width: 1279px) { .hero__media .device { right: 40px; width: 270px; } }
+  @media (max-width: 1023px) { .hero__media .device { right: 50%; transform: translateX(50%); top: 32px; width: 260px; } }
+  @media (max-width: 639px) { .device { width: 220px; border-width: 6px; border-radius: 30px; } .hero__media .device { top: 24px; width: 200px; } #safety .device, #faq .device { top: 24px; width: 220px; } }
+  /* app-frame (sections-library.md, app-frame) */
+  .app.ui { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); margin-top: var(--s-7); background: var(--u-bg); border: 1px solid var(--u-border); border-radius: var(--u-r); box-shadow: var(--u-shadow); }
+  .app > .app__pane { position: relative; min-width: 0; min-height: 0; overflow: hidden; }
+  .app > .app__pane + .app__pane { border-left: 1px solid var(--u-line); }
+  .app > .app__pane > .ui-panel { width: 100%; border: 0; border-radius: 0; box-shadow: none; }
+  .app > .app__pane::after { content: ""; position: absolute; inset: auto 0 0 0; height: 64px; background: linear-gradient(transparent, var(--u-bg)); pointer-events: none; }
+  @media (min-width: 1024px) and (max-width: 1279px) { .app.ui { grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); } }
+  @media (max-width: 1023px) {
+    .app.ui { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
+    .app > .app__pane--list { max-height: 252px; }
+    .app > .app__pane--list::after { display: none; }
+    .app .ui-win__side { display: none; }
+    .app .ui-win__body { grid-template-columns: minmax(0, 1fr); }
+    .app > .app__pane + .app__pane { border-left: 0; border-top: 1px solid var(--u-line); }
+  }
+  @media (max-width: 639px) {
+    .app.ui { grid-template-rows: minmax(0, 1fr); }
+    .app > .app__pane--list { display: none; }
+    .app > .app__pane + .app__pane { border-top: 0; }
+  }
+  #features .panel { --p-h: 336px; }
+  @media (max-width: 1279px) { .hero__media .ly-float { display: none; } }
+  @media (min-width: 640px) and (max-width: 1023px) { #features .panel { --p-h: 420px; } }
+  @media (max-width: 639px) { #features .panel { --p-h: 180px; } }
+</style>
+</head>
+<body>
+<!-- type: software (멤버 모집·합주 관리 앱, 직장인 밴드용)
+     deal: hero split, nav nav-centre (dealt nav-cards: no photographs for its cards, dealt again per sections.md 2), close close-type,
+     footer footer-dark, rhythm space, buttons arrow, mark arc; palette: the client's own (start.mjs brand: the app's ink #16181D and a
+     deeper amber #B87400 from its #F5B323 so the accent holds 3:1 on the ground); type: IBM Plex Sans KR + IBM Plex Mono (the dealt
+     familjen pairing has no Hangul); ground sand; effect silk-folds in the hero frame; moment liquid-type in #statement. -->
+<header class="nav nav--centre">
+  <div class="wrap nav__bar">
+    <a class="skip-link" href="#top">본문으로 건너뛰기</a>
+    <a class="nav__logo" href="#top"><span class="mark" data-mark="arc" aria-hidden="true"></span>밴드몽</a>
+    <nav class="nav__links" aria-label="주요 메뉴">
+      <div class="nav__item"><a class="nav__link" href="#schedule">일정</a></div>
+      <div class="nav__item"><a class="nav__link" href="#features">기능</a></div>
+      <div class="nav__item"><a class="nav__link" href="#safety">채팅</a></div>
+      <div class="nav__item"><a class="nav__link" href="#faq">질문</a></div>
+    </nav>
+    <div class="nav__actions">
+      <a class="btn btn--primary" href="/">무료로 시작하기</a>
+    </div>
+    <button class="nav__toggle" type="button" aria-expanded="false" aria-label="메뉴">
+      <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 5h14M2 13h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero hero--split" data-enter aria-labelledby="hero-h">
+    <div class="wrap"><div class="hero-text grid hero__grid">
+      <div class="hero__text span-5">
+        <h1 id="hero-h">직장인 밴드의 합주 관리 앱</h1>
+        <p class="hero__lead">악기별 빈자리로 멤버를 찾고, 멤버들이 되는 시간을 고르면 가장 많이 겹치는 시간 3개를 바로 보여 줘요. 채팅, 합주실 정산, 회비, 공연 큐시트도 같은 앱에서 봐요.</p>
+        <div class="btn-row"><a class="btn btn--primary" href="/">무료로 시작하기<svg class="m-arrow" viewBox="0 0 12 12" aria-hidden="true"><path class="m-arrow__stem" d="M1 6h8"/><path class="m-arrow__head" d="M4.5 2.5 8 6l-3.5 3.5"/></svg></a><a class="btn btn--secondary" href="#features">기능 보기</a></div>
+      </div>
+      <div class="hero__media span-6 start-7" data-fx="silk-folds" data-fx-seed="7" data-fx-palette='{"bg":"#d9ccb7","surface":"#e9e0d2","ink":"#2a2622","accent":"#a8794a"}'>
+        <div class="device"><img src="img/app-home-640.webp" srcset="img/app-home-420.webp 420w, img/app-home-640.webp 640w, img/app-home-840.webp 840w" sizes="(max-width: 639px) 200px, (max-width: 1279px) 270px, 310px" alt="밴드몽 앱의 내 밴드 화면: 다음 합주까지 남은 날, 참석 응답, 새 메시지 수, 빈 기타 자리가 보이는 밴드 카드 두 개" width="640" height="1385" fetchpriority="high" data-source="client" data-subject="밴드몽 앱 화면"></div>
+        <div class="ly-float">
+          <div class="ly-float__row"><span class="ly-live">다음 합주</span><span class="mono">D-6</span></div>
+          <div class="ly-float__title">12월 3일 (목) 20:00, 4명 중 3명 참석</div>
+        </div>
+      </div>
+    </div></div>
+  </section>
+
+  <section class="section" id="schedule" aria-labelledby="schedule-h">
+    <div class="wrap">
+      <div class="grid grid--top">
+        <h2 class="span-5" id="schedule-h">멤버 응답과 합주 날짜를 한 화면에서</h2>
+        <div class="span-6 start-7 stack-4">
+          <p>멤버마다 되는 칸을 고르면 겹치는 시간이 올라오고, 방장이 확정하면 각자 참석, 늦음, 불참으로 답해요. 시간을 옮기면 응답을 다시 받아요.</p>
+          <a class="link" href="#faq">자주 묻는 질문 보기</a>
+        </div>
+      </div>
+      <div class="ui app fill" role="img" aria-label="밴드몽 합주 화면: 왼쪽은 멤버별 참석 응답 목록, 오른쪽은 12월 달력과 확정된 합주, 공연 날짜" data-ui-pause-host>
+        <div class="app__pane app__pane--list">
+          <div class="ui ui-panel ui-win" data-ui="window" data-open="미응답" data-work="확인 중" data-done="참석">
+            <div class="ui-win__bar">
+              <span class="ui-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="ui-win__crumb">금요일 밤 록 커버 <i>/</i> <b>참석 응답</b></span>
+              <span class="ui-spacer"></span>
+            </div>
+            <div class="ui-win__body">
+              <nav class="ui-win__side" aria-hidden="true">
+                <span class="ui-win__nav is-on"><svg class="ui-icon" viewBox="0 0 16 16"><path d="m3.5 8.4 2.8 2.8 6.2-6.4"/></svg>응답<em>9</em></span>
+                <span class="ui-win__nav"><svg class="ui-icon" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.5"/><path d="M8 5v3l2 1.5"/></svg>투표<em>4</em></span>
+                <span class="ui-win__nav"><svg class="ui-icon" viewBox="0 0 16 16"><path d="M2.5 4.5h11v8h-11z"/><path d="m2.5 5 5.5 4 5.5-4"/></svg>채팅<em>3</em></span>
+                <span class="ui-win__label">보기</span>
+                <span class="ui-win__nav"><span class="ui-win__hash">#</span>합주</span>
+                <span class="ui-win__nav"><span class="ui-win__hash">#</span>공연</span>
+              </nav>
+              <div class="ui-win__main">
+                <div class="ui-win__cols" aria-hidden="true"><span>자리</span><span>합주</span><span>응답</span><span>시각</span></div>
+                <ul class="ui-win__rows">
+                  <li class="ui-win__row" data-row><span class="ui-avatar" data-tone="1">보</span><span class="ui-win__who">보컬</span><span class="ui-win__sub">12월 3일 목 20:00 · 합정 B룸</span><span class="ui-win__st is-done" data-st>참석</span><span class="ui-win__age">2분</span></li>
+                  <li class="ui-win__row" data-row><span class="ui-avatar" data-tone="3">기</span><span class="ui-win__who">기타</span><span class="ui-win__sub">12월 3일 목 20:00 · 합정 B룸</span><span class="ui-win__st" data-st>미응답</span><span class="ui-win__age">-</span></li>
+                  <li class="ui-win__row" data-row><span class="ui-avatar" data-tone="4">베</span><span class="ui-win__who">베이스</span><span class="ui-win__sub">12월 3일 목 20:00 · 합정 B룸</span><span class="ui-win__st is-done" data-st>참석</span><span class="ui-win__age">1시간</span></li>
+                  <li class="ui-win__row" data-row><span class="ui-avatar" data-tone="2">드</span><span class="ui-win__who">드럼</span><span class="ui-win__sub">12월 3일 목 20:00 · 늦게 와요 20:30</span><span class="ui-win__st is-you" data-st>늦음</span><span class="ui-win__age">3시간</span></li>
+                  <li class="ui-win__row" data-row><span class="ui-avatar" data-tone="1">보</span><span class="ui-win__who">보컬</span><span class="ui-win__sub">12월 17일 목 20:00 · 장소 미정</span><span class="ui-win__st" data-st>미응답</span><span class="ui-win__age">-</span></li>
+                  <li class="ui-win__row" data-row><span class="ui-avatar" data-tone="3">기</span><span class="ui-win__who">기타</span><span class="ui-win__sub">12월 17일 목 20:00 · 장소 미정</span><span class="ui-win__st" data-st>미응답</span><span class="ui-win__age">-</span></li>
+                  <li class="ui-win__row" data-row><span class="ui-avatar" data-tone="4">베</span><span class="ui-win__who">베이스</span><span class="ui-win__sub">12월 17일 목 20:00 · 장소 미정</span><span class="ui-win__st is-done" data-st>참석</span><span class="ui-win__age">어제</span></li>
+                  <li class="ui-win__row" data-row><span class="ui-avatar" data-tone="2">드</span><span class="ui-win__who">드럼</span><span class="ui-win__sub">12월 17일 목 20:00 · 장소 미정</span><span class="ui-win__st" data-st>미응답</span><span class="ui-win__age">-</span></li>
+                  <li class="ui-win__row" data-row><span class="ui-avatar" data-tone="5">키</span><span class="ui-win__who">키보드</span><span class="ui-win__sub">빈자리 · 지원 1명 대기</span><span class="ui-win__st" data-st>미응답</span><span class="ui-win__age">-</span></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="app__pane app__pane--open" data-ui-loop>
+          <div class="ui ui-panel ui-calendar" data-ui="calendar" data-start="14" data-end="17" data-month="12월">
+            <div class="ui-cal__head">
+              <div class="ui-cal__month">12월 <span>2026</span></div>
+              <span class="ui-spacer"></span>
+              <span class="ui-chip ui-chip--plain ui-chip--ink" data-cal-range>12월 14 – 17</span>
+              <span class="ui-cal__nav" aria-hidden="true"><svg class="ui-icon" viewBox="0 0 16 16"><path d="M10 4 6 8l4 4"/></svg></span>
+              <span class="ui-cal__nav" aria-hidden="true"><svg class="ui-icon" viewBox="0 0 16 16"><path d="m6 4 4 4-4 4"/></svg></span>
+            </div>
+            <div class="ui-cal__dow" aria-hidden="true"><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span><span>일</span></div>
+            <div class="ui-cal__days">
+              <span class="ui-cal__d is-out"><b>30</b></span><span class="ui-cal__d" data-d="1"><b>1</b></span><span class="ui-cal__d" data-d="2"><b>2</b></span><span class="ui-cal__d is-mark" data-d="3"><b>3</b></span><span class="ui-cal__d" data-d="4"><b>4</b></span><span class="ui-cal__d" data-d="5"><b>5</b></span><span class="ui-cal__d" data-d="6"><b>6</b></span>
+              <span class="ui-cal__d" data-d="7"><b>7</b></span><span class="ui-cal__d" data-d="8"><b>8</b></span><span class="ui-cal__d" data-d="9"><b>9</b></span><span class="ui-cal__d" data-d="10"><b>10</b></span><span class="ui-cal__d" data-d="11"><b>11</b></span><span class="ui-cal__d" data-d="12"><b>12</b></span><span class="ui-cal__d" data-d="13"><b>13</b></span>
+              <span class="ui-cal__d is-start" data-d="14"><b>14</b></span><span class="ui-cal__d is-in" data-d="15"><b>15</b></span><span class="ui-cal__d is-in" data-d="16"><b>16</b></span><span class="ui-cal__d is-end" data-d="17"><b>17</b></span><span class="ui-cal__d" data-d="18"><b>18</b></span><span class="ui-cal__d" data-d="19"><b>19</b></span><span class="ui-cal__d" data-d="20"><b>20</b></span>
+              <span class="ui-cal__d" data-d="21"><b>21</b></span><span class="ui-cal__d" data-d="22"><b>22</b></span><span class="ui-cal__d" data-d="23"><b>23</b></span><span class="ui-cal__d" data-d="24"><b>24</b></span><span class="ui-cal__d" data-d="25"><b>25</b></span><span class="ui-cal__d" data-d="26"><b>26</b></span><span class="ui-cal__d" data-d="27"><b>27</b></span>
+              <span class="ui-cal__d" data-d="28"><b>28</b></span><span class="ui-cal__d" data-d="29"><b>29</b></span><span class="ui-cal__d" data-d="30"><b>30</b></span><span class="ui-cal__d" data-d="31"><b>31</b></span><span class="ui-cal__d is-out"><b>1</b></span><span class="ui-cal__d is-out"><b>2</b></span><span class="ui-cal__d is-out"><b>3</b></span>
+            </div>
+            <div class="ui-cal__events">
+              <div class="ui-cal__ev" data-ev="3"><span class="ui-cal__date"><b>3</b><i>12월</i></span><span class="ui-cal__evtext"><span class="ui-cal__evtitle">합주 확정 · 목 20:00</span><span class="ui-cal__evsub">합정 B룸, 4명 중 3명 참석</span></span></div>
+              <div class="ui-cal__ev" data-ev="14"><span class="ui-cal__date"><b>14</b><i>12월</i></span><span class="ui-cal__evtext"><span class="ui-cal__evtitle">다음 주 시간 투표</span><span class="ui-cal__evsub">7일 × 6칸, 가장 많이 겹치는 시간 3개</span></span></div>
+              <div class="ui-cal__ev" data-ev="17"><span class="ui-cal__date"><b>17</b><i>12월</i></span><span class="ui-cal__evtext"><span class="ui-cal__evtitle">합주 후보 · 목 20:00</span><span class="ui-cal__evsub">4명 중 4명 가능</span></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section g2" id="features" aria-labelledby="features-h">
+    <div class="wrap">
+      <div class="group">
+        <div class="section-head">
+          <h2 id="features-h">합주 전후의 일을 한 앱에서. <span class="muted">멤버 찾기부터 공연 순서까지.</span></h2>
+        </div>
+        <div class="grid">
+          <article class="card card--row card--open span-6">
+            <h3>새 소식을 알림으로 받기</h3>
+            <p>지원, 합주 확정, 시간 변경은 알림 탭으로 와요. 채팅은 새로고침 없이 바로 떠요.</p>
+            <div class="panel" data-fx="fluted-glass" data-fx-seed="34" data-fx-params='{"speed":0,"drift":0}' data-fx-palette='{"bg":"#d9ccb7","surface":"#e9e0d2","ink":"#2a2622","accent":"#a8794a"}'>
+              <div class="stage stage--fade-b"><div class="at-rise fit" style="--fit-max:380px;--ax:max(24px, 50% - 190px);--ay:48px;--ay-sm:24px" data-ui-loop>
+                <div class="ui ui-notify" data-ui="notify">
+                  <ul class="ui-notify__list" data-notify-list>
+                    <li class="ui-note"><span class="ui-avatar ui-note__av" data-tone="3">기</span><span class="ui-note__text"><span class="ui-note__title">기타 자리에 지원이 왔어요<time>방금</time></span><span class="ui-note__body">"주말엔 어렵고 평일 저녁 다 돼요"</span></span><span class="ui-btn ui-btn--sm ui-note__btn">보기</span></li>
+                    <li class="ui-note"><span class="ui-note__ico"><svg class="ui-icon" viewBox="0 0 16 16"><path d="m3.5 8.4 2.8 2.8 6.2-6.4"/></svg></span><span class="ui-note__text"><span class="ui-note__title">합주가 확정됐어요<time>1시간</time></span><span class="ui-note__body">12월 3일 (목) 20:00, 합정 B룸</span></span></li>
+                    <li class="ui-note"><span class="ui-note__ico"><svg class="ui-icon" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.5"/><path d="M8 5v3l2 1.5"/></svg></span><span class="ui-note__text"><span class="ui-note__title">합주 시간이 바뀌었어요<time>어제</time></span><span class="ui-note__body">참석 여부를 다시 알려 주세요</span></span></li>
+                  </ul>
+                </div>
+              </div></div>
+            </div>
+          </article>
+          <article class="card card--row card--open span-6">
+            <h3>빈자리로 밴드 찾기</h3>
+            <p>지역, 장르, 악기로 거르면 내 악기 자리가 빈 밴드만 남아요. 한마디를 적어 지원하면 방장이 수락해요.</p>
+            <div class="panel" data-fx="fluted-glass" data-fx-seed="21" data-fx-params='{"speed":0,"drift":0}' data-fx-palette='{"bg":"#d9ccb7","surface":"#e9e0d2","ink":"#2a2622","accent":"#a8794a"}'>
+              <div class="stage stage--fade-b"><div class="at-rise fit" style="--fit-max:380px;--ax:max(24px, 50% - 190px);--ay:32px;--ay-sm:24px">
+                <div class="ui ui-panel ui-search" data-ui="search">
+                  <div class="ui-search__field">
+                    <svg class="ui-icon" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="m10.5 10.5 3 3"/></svg>
+                    <span class="ui-search__q"><span data-search-q>베이스 마포</span><i class="ui-search__caret"></i></span>
+                  </div>
+                  <div class="ui-search__group">베이스 자리가 빈 밴드</div>
+                  <ul class="ui-search__list" data-search-list>
+                    <li class="ui-search__row is-sel"><span class="ui-search__ico"><svg class="ui-icon" viewBox="0 0 16 16"><path d="M8 2v8.5"/><circle cx="6" cy="11" r="2.5"/></svg></span><span class="ui-search__t">금요일 밤 록 커버 · <b>베이스</b> 1자리</span><span class="ui-search__m"><b>마포</b>·홍대</span></li>
+                    <li class="ui-search__row"><span class="ui-search__ico"><svg class="ui-icon" viewBox="0 0 16 16"><path d="M8 2v8.5"/><circle cx="6" cy="11" r="2.5"/></svg></span><span class="ui-search__t">합정 인디 합주 · <b>베이스</b> 1자리</span><span class="ui-search__m"><b>마포</b>·합정</span></li>
+                    <li class="ui-search__row"><span class="ui-search__ico"><svg class="ui-icon" viewBox="0 0 16 16"><path d="M8 2v8.5"/><circle cx="6" cy="11" r="2.5"/></svg></span><span class="ui-search__t">상수 재즈 트리오 · <b>베이스</b> 1자리</span><span class="ui-search__m"><b>마포</b>·상수</span></li>
+                  </ul>
+                </div>
+              </div></div>
+            </div>
+          </article>
+        </div>
+      </div>
+      <div class="grid">
+        <article class="card card--row card--open span-6">
+          <h3>합주실 비용 나누기</h3>
+          <p>방과 시간을 고르면 총액과 1인 몫이 계산되고, 누가 냈는지 이름으로 남아요.</p>
+          <div class="panel" data-fx="fluted-glass" data-fx-seed="55" data-fx-params='{"speed":0,"drift":0}' data-fx-palette='{"bg":"#d9ccb7","surface":"#e9e0d2","ink":"#2a2622","accent":"#a8794a"}'>
+            <div class="stage stage--fade-b"><div class="at-rise fit" style="--fit-max:340px;--ax:max(24px, 50% - 170px);--ay:40px;--ay-sm:24px">
+              <div class="ui ui-panel ui-checks" data-ui="checklist">
+                <div class="ui-checks__head">
+                  <div class="ui-title">12월 3일 합주실 · 1인 9,000원</div>
+                  <span class="ui-spacer"></span>
+                  <div class="ui-meta" data-checks-count>2 / 4명</div>
+                </div>
+                <div class="ui-checks__bar"><i data-checks-bar style="--k:0.5"></i></div>
+                <ul class="ui-checks__list">
+                  <li class="ui-check is-done"><span class="ui-check__box"><svg viewBox="0 0 16 16"><path d="m4.5 8.2 2.3 2.3 4.7-5"/></svg></span><span class="ui-check__label">베이스 · 낸 사람 (예약)</span></li>
+                  <li class="ui-check is-done"><span class="ui-check__box"><svg viewBox="0 0 16 16"><path d="m4.5 8.2 2.3 2.3 4.7-5"/></svg></span><span class="ui-check__label">보컬 · 9,000원 보냄</span></li>
+                  <li class="ui-check"><span class="ui-check__box"><svg viewBox="0 0 16 16"><path d="m4.5 8.2 2.3 2.3 4.7-5"/></svg></span><span class="ui-check__label">기타 · 9,000원</span></li>
+                  <li class="ui-check"><span class="ui-check__box"><svg viewBox="0 0 16 16"><path d="m4.5 8.2 2.3 2.3 4.7-5"/></svg></span><span class="ui-check__label">드럼 · 9,000원</span></li>
+                </ul>
+              </div>
+            </div></div>
+          </div>
+        </article>
+        <article class="card card--row card--open span-6">
+          <h3>공연 순서를 시간으로 맞추기</h3>
+          <p>큐시트에 곡과 멘트를 넣으면 각자의 시작 시각이 나오고, 우리 순서 20분을 넘으면 바로 보여요.</p>
+          <div class="panel" data-fx="fluted-glass" data-fx-seed="89" data-fx-params='{"speed":0,"drift":0}' data-fx-palette='{"bg":"#d9ccb7","surface":"#e9e0d2","ink":"#2a2622","accent":"#a8794a"}'>
+            <div class="stage stage--fade-b">
+              <div class="at-rise fit" style="--fit-max:280px;--ax:max(24px, 50% - 140px);--ay:32px;--ay-sm:24px"><div class="phone"><img src="img/app-gig-640.webp" srcset="img/app-gig-420.webp 420w, img/app-gig-640.webp 640w, img/app-gig-840.webp 840w" sizes="280px" alt="밴드몽 공연 화면: 우리 순서 20분 중 19분 40초를 쓴 큐시트, 곡과 멘트마다 18:00, 18:01 같은 시작 시각" width="640" height="1385" loading="lazy" data-source="client" data-subject="밴드몽 공연 큐시트 화면"></div></div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section statement" id="statement" data-moment="liquid-type" aria-labelledby="statement-h">
+    <div class="wrap">
+      <h2 class="mo-lt__type" id="statement-h">단톡방 대신 합주 일정표</h2>
+      <p class="t-lead">"다들 언제 돼요?"를 묻고 기다리는 대신, 각자 되는 칸을 한 번 고르면 끝나요.</p>
+    </div>
+  </section>
+
+  <section class="section" id="safety" aria-labelledby="safety-h">
+    <div class="wrap">
+      <div class="grid grid--top fill">
+        <div class="span-5 stack-6">
+          <h2 id="safety-h">신고와 차단이 있는 밴드 채팅</h2>
+          <p class="t-lead">남의 메시지를 누르면 신고와 차단이 나와요. 차단한 사람의 메시지는 바로 사라지고 실시간으로도 오지 않아요.</p>
+          <ul class="stack-3">
+            <li>채팅의 욕설은 ***로 가려져요</li>
+            <li>닉네임과 밴드 소개의 욕설은 저장이 안 돼요</li>
+            <li>신고는 관리자가 확인해 이용을 제한해요</li>
+          </ul>
+          <a class="link" href="#faq">질문 더 보기</a>
+        </div>
+        <div class="frame frame--fill span-6 start-7" data-visual>
+          <div class="stage stage--fade-b">
+            <div class="device"><img src="img/app-chat-640.webp" srcset="img/app-chat-420.webp 420w, img/app-chat-640.webp 640w, img/app-chat-840.webp 840w" sizes="(max-width: 639px) 220px, 380px" alt="밴드몽 채팅 화면: 다른 멤버의 메시지 아래 '이 메시지 신고'와 '민재님 차단' 버튼이 열려 있다" width="640" height="1385" loading="lazy" data-source="client" data-subject="밴드몽 채팅 화면"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="faq" style="--hm: 2" aria-labelledby="faq-h">
+    <div class="wrap">
+      <div class="grid grid--top fill">
+        <div class="span-5 stack-6">
+          <h2 id="faq-h">자주 묻는 질문</h2>
+          <div class="faq">
+            <div class="faq__item"><h3>돈이 드나요?</h3><p>아니요. 모든 기능이 무료예요.</p></div>
+            <div class="faq__item"><h3>합주실 예약이 실제로 되나요?</h3><p>아직은 아니에요. 지금 합주실 7곳은 예시라서 예약은 합주실에 직접 해요.</p></div>
+            <div class="faq__item"><h3>어떻게 로그인하나요?</h3><p>카카오, 네이버, 구글 계정으로 해요. 준비 중인 아이폰 앱에서는 Apple 로그인도 돼요.</p></div>
+            <div class="faq__item"><h3>탈퇴하면 기록은 어떻게 되나요?</h3><p>내 정보 화면에서 바로 탈퇴해요. 프로필은 지워지고 채팅 기록은 '탈퇴한 사용자'로 남아요.</p></div>
+          </div>
+        </div>
+        <div class="frame frame--fill span-6 start-7">
+          <div class="stage stage--fade-b">
+            <div class="device"><img src="img/app-me-640.webp" srcset="img/app-me-420.webp 420w, img/app-me-640.webp 640w, img/app-me-840.webp 840w" sizes="(max-width: 639px) 220px, 380px" alt="밴드몽 내 정보 화면: 프로필, 차단한 사람 목록과 차단 풀기, 로그아웃과 탈퇴하기" width="640" height="1385" loading="lazy" data-source="client" data-subject="밴드몽 내 정보 화면"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer closing footer--dark ground-inverse" id="contact" aria-labelledby="close-h">
+  <div class="wrap">
+    <div class="closing__cta close--type">
+      <div class="section-head">
+        <h2 id="close-h">이번 주 합주 시간부터 정해 보세요</h2>
+        <p class="t-small muted">가입은 무료예요.</p>
+      </div>
+      <a class="btn btn--primary btn--xl btn--wide" href="/">무료로 시작하기<svg class="m-arrow" viewBox="0 0 12 12" aria-hidden="true"><path class="m-arrow__stem" d="M1 6h8"/><path class="m-arrow__head" d="M4.5 2.5 8 6l-3.5 3.5"/></svg></a>
+    </div>
+    <div class="closing__links">
+      <div class="grid">
+        <div class="span-4 stack-4">
+          <a class="nav__logo" href="#top"><span class="mark" data-mark="arc" aria-hidden="true"></span>밴드몽</a>
+          <p class="footer__lede">직장인 밴드의 멤버 모집과 합주 일정 관리 앱</p>
+        </div>
+        <div class="span-2 footer__col"><h3>합주</h3><ul><li><a href="#schedule">참석 응답</a></li><li><a href="#statement">시간 투표</a></li></ul></div>
+        <div class="span-2 footer__col"><h3>밴드</h3><ul><li><a href="#features">멤버 찾기</a></li><li><a href="#safety">밴드 채팅</a></li></ul></div>
+        <div class="span-2 footer__col"><h3>도움</h3><ul><li><a href="#faq">자주 묻는 질문</a></li></ul></div>
+        <div class="span-2 footer__col"><h3>약관</h3><ul><li><a href="../privacy.html">개인정보 처리방침</a></li><li><a href="../terms.html">이용약관</a></li></ul></div>
+      </div>
+      <div class="footer__legal">
+        <span>&copy; 2026 밴드몽</span>
+        <div class="socials"></div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script type="module" src="assets/system.js"></script>
+<script type="module" src="assets/motion/motion.js"></script>
+<script type="module" src="assets/layout/layout.js"></script>
+</body>
+</html>

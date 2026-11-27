@@ -96,6 +96,7 @@ export default function LoginPage({ providers, onLogin }: { providers: Providers
           <a href={`${apiBase}/privacy.html`} target="_blank" rel="noopener">개인정보 처리방침</a>에 동의하게 돼요
           {providers.supportEmail && <><br />문의 {providers.supportEmail}</>}
         </p>
+        {!isApp && <p className="fine"><a href="/intro/">밴드몽이 처음이라면 소개 보기</a></p>}
       </div>
     </main>
   );
