@@ -144,3 +144,4 @@ AWS EC2 + RDS(MySQL) + Docker + GitHub Actions 구성으로 준비되어 있다.
 - [x] **6단계** 신고·관리자 처리·이용 제한, 방장 넘기기·탈퇴, 배포 준비(Flyway·Docker·CI/CD·AWS 가이드) — [설계 기록](docs/stage-06.md)
 - [x] **7단계** iOS 앱(Capacitor), Apple 로그인, 푸시 알림, 욕설 필터·차단, TestFlight 자동 업로드 — [설계 기록](docs/stage-07.md)
 - [x] **소개 페이지** `/intro/` — taste-skill 규칙·검사(GATE PASS)로 만든 랜딩 페이지, 실제 앱 화면 캡처 사용 — [기록](docs/intro-page.md)
+- [x] **앱 UI 다시 디자인** — Hallmark redesign(full): 브랜드 색 유지, 토큰·아이콘·글꼴 내장, 밴드 카드의 "다음 합주 표" — [기록](docs/ui-redesign.md)

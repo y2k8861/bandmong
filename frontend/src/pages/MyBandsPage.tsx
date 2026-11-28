@@ -16,7 +16,7 @@ export default function MyBandsPage({ me }: { me: Me }) {
     <main className="scr">
       <header className="top pad">
         <div className="between">
-          <span className="logo">밴드<em>몽</em></span>
+          <span className="logo">밴드<span className="logo__mark">몽</span></span>
           <Link className="btn-dark" to="/bands/new">+ 밴드 만들기</Link>
         </div>
         <p className="sub">{me.nickname}님, 오늘도 퇴근하고 합주 어때요?</p>
@@ -25,7 +25,7 @@ export default function MyBandsPage({ me }: { me: Me }) {
         {me.restrictedUntil && (
           <Link to="/me" className="card restricted">
             <b>지금은 이용이 제한돼 보기만 할 수 있어요</b>
-            <span className="sub">자세히 보기 →</span>
+            <span className="sub">자세히 보기</span>
           </Link>
         )}
         {loading && !data && <p className="sub">불러오는 중…</p>}

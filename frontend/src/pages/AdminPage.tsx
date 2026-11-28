@@ -5,6 +5,8 @@ import type { ModerationAction, ReportView } from '../api/types';
 import { ago } from '../lib/band';
 import { fmtDateTime } from '../lib/time';
 import { useLoad } from '../lib/useLoad';
+import Facts from '../components/Facts';
+import { ChevronLeft } from 'lucide-react';
 
 const TABS = [
   { id: 'OPEN', name: '처리 전' },
@@ -50,7 +52,7 @@ export default function AdminPage() {
     <main className="scr">
       <header className="top pad">
         <div className="between">
-          <Link className="btn-ghost" to="/me">← 마이</Link>
+          <Link className="btn-ghost" to="/me"><ChevronLeft aria-hidden size={18} />마이</Link>
           <span className="tag">관리자</span>
         </div>
         <h1 className="h1">신고 처리</h1>
@@ -71,8 +73,7 @@ export default function AdminPage() {
             <p className="quote">{r.targetSummary}</p>
             {r.detail && <p className="sub">신고 내용: {r.detail}</p>}
             <p className="sub">
-              신고 {r.reporterNickname} → 대상 <b>{r.accusedNickname ?? '(없음)'}</b>
-              {' · '}이 대상 신고 {r.openOnTarget}건 · 이 사람 누적 {r.reportsAgainstAccused}건
+              <Facts items={[<>신고 {r.reporterNickname}, 대상 <b>{r.accusedNickname ?? '(없음)'}</b></>, `이 대상 신고 ${r.openOnTarget}건`, `이 사람 누적 ${r.reportsAgainstAccused}건`]} />
             </p>
             {r.accusedRestrictedUntil && (
               <p className="err-text">
@@ -90,7 +91,7 @@ export default function AdminPage() {
                 </div>
               </>
             ) : (
-              <p className="sub">결과: {r.resolution}{r.adminNote ? ` · ${r.adminNote}` : ''}</p>
+              <p className="sub"><Facts items={[`결과: ${r.resolution}`, r.adminNote]} /></p>
             )}
           </article>
         ))}

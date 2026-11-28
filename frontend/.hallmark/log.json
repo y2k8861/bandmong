@@ -1,0 +1,35 @@
+[
+ {
+  "mode": "redesign",
+  "depth": "full",
+  "scope": "app",
+  "shape": "app screen",
+  "theme": "brand",
+  "axes": "light/grotesk-sans/warm",
+  "nav": "kept bottom tab bar with icons",
+  "footer": "none (app)",
+  "imagery": "none",
+  "photos": [],
+  "signature": "the next jam as an ink ticket on every band card",
+  "sections": [
+   "home",
+   "band",
+   "chat",
+   "schedule",
+   "jam",
+   "gig",
+   "explore",
+   "notifications",
+   "me",
+   "studio",
+   "create",
+   "login"
+  ],
+  "waived": [
+   "39b",
+   "38iii"
+  ],
+  "prompt": "band matching and band management app for office workers",
+  "date": "2026-11-28"
+ }
+]

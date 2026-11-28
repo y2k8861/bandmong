@@ -5,6 +5,7 @@ import { useLoad } from '../lib/useLoad';
 import { won } from '../lib/money';
 import { thisMonthKst } from '../lib/time';
 import Sheet from './Sheet';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const shift = (m: string, n: number) => {
   const [y, mo] = m.split('-').map(Number);
@@ -29,7 +30,7 @@ export default function DuesCard({ bandId, myId }: { bandId: number; myId: numbe
     <section className="card">
       <div className="between">
         <h2 className="section">회비</h2>
-        {data?.host && <button className="btn-ghost" onClick={() => setEdit(true)}>{data.amount ? '바꾸기' : '회비 정하기'}</button>}
+        {data?.host && <button className="btn-dark" onClick={() => setEdit(true)}>{data.amount ? '바꾸기' : '회비 정하기'}</button>}
       </div>
       {error && <p className="err-text">{error}</p>}
       {data && !data.amount && <p className="sub">정해진 회비가 없어요.{data.host ? ' 합주실비 말고 매달 걷는 돈이 있으면 정해 두세요.' : ''}</p>}
@@ -37,9 +38,9 @@ export default function DuesCard({ bandId, myId }: { bandId: number; myId: numbe
         <>
           <div className="between">
             <div className="row">
-              <button className="btn-ghost" aria-label="이전 달" onClick={() => setMonth(shift(month, -1))}>‹</button>
+              <button className="btn-ghost" aria-label="이전 달" onClick={() => setMonth(shift(month, -1))}><ChevronLeft aria-hidden size={18} /></button>
               <b>{label} {won(data.amount)}</b>
-              <button className="btn-ghost" aria-label="다음 달" disabled={month >= shift(thisMonthKst(), 1)} onClick={() => setMonth(shift(month, 1))}>›</button>
+              <button className="btn-ghost" aria-label="다음 달" disabled={month >= shift(thisMonthKst(), 1)} onClick={() => setMonth(shift(month, 1))}><ChevronRight aria-hidden size={18} /></button>
             </div>
             <span className="sub">{data.paidCount}/{data.total}명 냄</span>
           </div>

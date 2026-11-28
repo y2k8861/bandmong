@@ -5,6 +5,7 @@ import { useLoad } from '../lib/useLoad';
 import { mmss } from '../lib/cue';
 import { addDays, dday, fmtDateTime, fromKstInput, todayKst } from '../lib/time';
 import Sheet from './Sheet';
+import Facts from './Facts';
 
 export default function GigsCard({ bandId, isHost }: { bandId: number; isHost: boolean }) {
   const { data, error } = useLoad(() => listGigs(bandId), [bandId]);
@@ -23,8 +24,8 @@ export default function GigsCard({ bandId, isHost }: { bandId: number; isHost: b
           <span className="dday">{g.status === 'CANCELED' ? '취소' : dday(g.startsAt)}</span>
           <span className="jam-main">
             <b>{g.title}</b>
-            <span className="sub">{fmtDateTime(g.startsAt)} · {g.venue ?? '공연장 미정'}</span>
-            <span className={`sub ${g.totalSec > g.slotMinutes * 60 ? 'err-text' : ''}`}>큐시트 {mmss(g.totalSec)}/{g.slotMinutes}:00 · 준비 {g.doneCount}/{g.checks.length}</span>
+            <span className="sub"><Facts items={[fmtDateTime(g.startsAt), g.venue ?? '공연장 미정']} /></span>
+            <span className={`sub ${g.totalSec > g.slotMinutes * 60 ? 'err-text' : ''}`}><Facts items={[`큐시트 ${mmss(g.totalSec)}/${g.slotMinutes}:00`, `준비 ${g.doneCount}/${g.checks.length}`]} /></span>
           </span>
         </Link>
       ))}

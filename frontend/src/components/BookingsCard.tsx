@@ -5,6 +5,7 @@ import type { BookingView } from '../api/types';
 import { useLoad } from '../lib/useLoad';
 import { won } from '../lib/money';
 import { fmtDateTime, fmtTime } from '../lib/time';
+import Facts from './Facts';
 
 /** 밴드 상세: 합주실 예약과 1인 정산 */
 export default function BookingsCard({ bandId, isHost }: { bandId: number; isHost: boolean }) {
@@ -39,7 +40,7 @@ export default function BookingsCard({ bandId, isHost }: { bandId: number; isHos
               <button className="link-btn" onClick={() => run(() => cancelBooking(b.id))}>취소</button>
             )}
           </div>
-          <span className="sub">{fmtDateTime(b.startsAt)}–{fmtTime(b.endsAt)} · 총 {won(b.price)} · 1인 {won(b.perPerson)}</span>
+          <span className="sub"><Facts items={[`${fmtDateTime(b.startsAt)}~${fmtTime(b.endsAt)}`, `총 ${won(b.price)}`, `1인 ${won(b.perPerson)}`]} /></span>
           <div className="settle-row">
             <span className="sub">정산 {b.paidCount}/{b.settles.length}</span>
             <div className="row wrap">
@@ -55,7 +56,7 @@ export default function BookingsCard({ bandId, isHost }: { bandId: number; isHos
               })}
             </div>
           </div>
-          {b.mine && !b.mine.paid && <p className="sub">내 몫 {won(b.mine.amount)} — 보냈으면 내 이름을 눌러 표시해 주세요.</p>}
+          {b.mine && !b.mine.paid && <p className="sub">내 몫 {won(b.mine.amount)}. 보냈으면 내 이름을 눌러 표시해 주세요.</p>}
         </article>
       ))}
       {msg && <p className="err-text" role="alert">{msg}</p>}

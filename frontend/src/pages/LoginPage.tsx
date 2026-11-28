@@ -55,7 +55,7 @@ export default function LoginPage({ providers, onLogin }: { providers: Providers
     <main className="scr dark login pad">
       <div className="hero">
         <div className="eq" aria-hidden><span /><span /><span /><span /><span /></div>
-        <h1 className="logo-xl">퇴근하고<br /><em>밴드몽</em></h1>
+        <h1 className="logo-xl"><span>퇴근하고</span><span className="logo-xl__mark">밴드몽</span></h1>
         <p>회사 근처에서 같이 합주할 사람을 찾고,<br />합주 일정과 밴드 살림을 한곳에서.</p>
       </div>
 

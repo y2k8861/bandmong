@@ -14,6 +14,8 @@ import { blockUser } from '../api/app';
 import { ago, genreName, openCount, seatError } from '../lib/band';
 import { LEVELS, instrumentName } from '../lib/profile';
 import { useLoad } from '../lib/useLoad';
+import Facts from '../components/Facts';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const levelName = (l: string | null) => LEVELS.find((x) => x.id === l)?.name;
 
@@ -62,15 +64,14 @@ export default function BandDetailPage({ me }: { me: Me }) {
     <main className="scr">
       <header className="top pad">
         <div className="between">
-          <button className="btn-ghost" onClick={() => nav(-1)}>← 뒤로</button>
+          <button className="btn-ghost" onClick={() => nav(-1)}><ChevronLeft aria-hidden size={18} />뒤로</button>
           {band.me === 'HOST'
             ? <button className="btn-ghost" onClick={() => setSheet('seats')}>자리·모집 설정</button>
             : <button className="btn-ghost" onClick={() => setSheet('report')}>밴드 신고</button>}
         </div>
-        <div className="row"><span className="genre">{genreName(band.genre)}</span>{!band.recruiting && <span className="tag soft">모집 마감</span>}</div>
         <h1 className="h1">{band.title}</h1>
         <p className="sub">
-          {band.area}{band.schedule && ` · ${band.schedule}`} · 실력 {levelName(band.level) ?? '상관없음'} · 방장 {host?.nickname}
+          <Facts items={[genreName(band.genre), band.area, band.schedule, `실력 ${levelName(band.level) ?? '상관없음'}`, `방장 ${host?.nickname ?? ''}`, !band.recruiting && '모집 마감']} />
         </p>
       </header>
 
@@ -80,7 +81,7 @@ export default function BandDetailPage({ me }: { me: Me }) {
         {(band.me === 'HOST' || band.me === 'MEMBER') && (
           <Link to={`/bands/${band.id}/chat`} className="card chat-link">
             <span><b>밴드 채팅</b><span className="sub">멤버끼리 이야기해요</span></span>
-            {(band.unreadMessages ?? 0) > 0 ? <span className="badge chat">새 메시지 {band.unreadMessages}</span> : <span className="sub">열기 →</span>}
+            {(band.unreadMessages ?? 0) > 0 ? <span className="badge chat" role="status">새 메시지 {band.unreadMessages}</span> : <ChevronRight aria-hidden size={18} className="sub" />}
           </Link>
         )}
 
@@ -135,7 +136,7 @@ export default function BandDetailPage({ me }: { me: Me }) {
                     <span className="sub">{ago(a.createdAt)}</span>
                   </div>
                   <span className="sub">
-                    {instrumentName(a.instrument)} 자리 지원 · {levelName(a.level)}{a.region && ` · ${a.region}`}
+                    <Facts items={[`${instrumentName(a.instrument)} 자리 지원`, levelName(a.level), a.region]} />
                   </span>
                   {a.message && <p className="quote">“{a.message}”</p>}
                   {full && <p className="err-text">{instrumentName(a.instrument)} 자리가 다 찼어요. 자리를 늘려야 수락할 수 있어요.</p>}
@@ -226,7 +227,7 @@ function ApplySheet({ band, me, busy, onClose, onSubmit }: {
         <div className="row wrap" role="group" aria-label="지원할 자리">
           {choices.map((i) => (
             <button key={i} type="button" className="chip" aria-pressed={inst === i} onClick={() => setInst(i)}>
-              {instrumentName(i)} · {openCount(band.seats, i)}자리
+              {instrumentName(i)} {openCount(band.seats, i)}자리
             </button>
           ))}
         </div>

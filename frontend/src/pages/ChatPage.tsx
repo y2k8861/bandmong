@@ -8,6 +8,8 @@ import ReportSheet from '../components/ReportSheet';
 import { blockUser } from '../api/app';
 import { useLoad } from '../lib/useLoad';
 import { fmtTime, kstDate } from '../lib/time';
+import Facts from '../components/Facts';
+import { ChevronLeft } from 'lucide-react';
 
 /** 화면에만 있는 "보내는 중/실패" 메시지 */
 type Local = MessageView & { state?: 'sending' | 'failed' };
@@ -127,10 +129,10 @@ export default function ChatPage({ me }: { me: Me }) {
   return (
     <main className="scr chat">
       <header className="top pad row">
-        <Link className="btn-ghost" to={`/bands/${bandId}`}>←</Link>
+        <Link className="btn-ghost" to={`/bands/${bandId}`} aria-label="밴드로 돌아가기"><ChevronLeft aria-hidden size={18} /></Link>
         <div className="chat-title">
           <b>{band.data?.title ?? '밴드 채팅'}</b>
-          <span className="sub">{band.data ? `멤버 ${band.data.members.length}명` : ''}{!connected && ' · 연결 중…'}</span>
+          <span className="sub"><Facts items={[band.data && `멤버 ${band.data.members.length}명`, !connected && '연결 중…']} /></span>
         </div>
       </header>
 

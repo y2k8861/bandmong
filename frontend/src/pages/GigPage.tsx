@@ -7,6 +7,8 @@ import Sheet from '../components/Sheet';
 import { cueTimes, mmss, move, totalSec } from '../lib/cue';
 import { dday, fmtDateTime } from '../lib/time';
 import { useLoad } from '../lib/useLoad';
+import Facts from '../components/Facts';
+import { ChevronLeft } from 'lucide-react';
 
 export default function GigPage() {
   const id = Number(useParams().id);
@@ -54,15 +56,15 @@ export default function GigPage() {
     <main className="scr">
       <header className="top pad dark-head">
         <div className="between">
-          <Link className="btn-ghost on-dark" to={`/bands/${gig.bandId}`}>← {gig.bandTitle}</Link>
+          <Link className="btn-ghost on-dark" to={`/bands/${gig.bandId}`}><ChevronLeft aria-hidden size={18} />{gig.bandTitle}</Link>
           {canceled ? <span className="badge">취소됨</span> : <span className="dday">{dday(gig.startsAt)}</span>}
         </div>
         <h1 className="h1">{gig.title}</h1>
-        <p className="sub">{fmtDateTime(gig.startsAt)} · {gig.venue ?? '공연장 미정'} · 우리 순서 {gig.slotMinutes}분</p>
+        <p className="sub"><Facts items={[fmtDateTime(gig.startsAt), gig.venue ?? '공연장 미정', `우리 순서 ${gig.slotMinutes}분`]} /></p>
         <div className={`timebar ${over ? 'over' : ''}`} role="img" aria-label={`큐시트 ${mmss(tot)} / ${gig.slotMinutes}분`}>
           <span style={{ width: `${Math.min(100, (tot / slot) * 100)}%` }} />
         </div>
-        <p className="sub mono">큐시트 길이 {mmss(tot)} / {gig.slotMinutes}:00 {over ? `· ${mmss(tot - slot)} 넘어요` : `· ${mmss(slot - tot)} 남아요`}</p>
+        <p className="sub mono"><Facts items={[`큐시트 길이 ${mmss(tot)} / ${gig.slotMinutes}:00`, over ? `${mmss(tot - slot)} 넘어요` : `${mmss(slot - tot)} 남아요`]} /></p>
       </header>
 
       <div className="body pad">
@@ -101,7 +103,7 @@ export default function GigPage() {
               <li key={c.id}>
                 <label className={c.done ? 'done' : ''}>
                   <input type="checkbox" checked={c.done} disabled={canceled} onChange={() => run(() => markCheck(gig.id, c.id, !c.done))} />
-                  <span>{c.text}{c.doneBy && <span className="sub"> · {c.doneBy}</span>}</span>
+                  <span>{c.text}{c.doneBy && <span className="sub"> ({c.doneBy})</span>}</span>
                 </label>
                 {!canceled && <button className="x" aria-label={`${c.text} 지우기`} onClick={() => run(() => deleteCheck(gig.id, c.id))}>✕</button>}
               </li>

@@ -50,7 +50,7 @@ export default function MePage({ me, onLogout }: { me: Me; onLogout: () => void 
             <p className="sub">신고가 접수되어 운영 정책에 따라 제한됐어요. 그동안은 보기만 할 수 있어요. 알림 탭에서 이유를 확인하세요.</p>
           </section>
         )}
-        {me.role === 'ADMIN' && <Link className="card admin-link" to="/admin"><b>신고 처리</b><span className="sub">관리자 →</span></Link>}
+        {me.role === 'ADMIN' && <Link className="card admin-link" to="/admin"><b>신고 처리</b><span className="sub">관리자</span></Link>}
         <section className="card">
           <div className="between">
             <h2 className="h1">{me.nickname}</h2>

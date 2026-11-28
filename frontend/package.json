@@ -7,7 +7,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "lint": "eslint .",
-    "check": "npm run lint && npm test && npm run build"
+    "check": "npm run lint && npm test && npm run build",
+    "mock": "node tools/mock-api.mjs"
   },
   "dependencies": {
     "@capacitor-community/apple-sign-in": "7.0.1",
@@ -17,7 +18,10 @@
     "@capacitor/core": "7.0.1",
     "@capacitor/ios": "7.0.1",
     "@capacitor/preferences": "7.0.0",
+    "@fontsource/black-han-sans": "5.1.0",
+    "@fontsource/ibm-plex-sans-kr": "5.1.0",
     "firebase": "11.2.0",
+    "lucide-react": "0.460.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.28.0"

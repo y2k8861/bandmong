@@ -6,6 +6,8 @@ import type { SlotsView } from '../api/types';
 import { useLoad } from '../lib/useLoad';
 import { hourLabel, perPerson, won } from '../lib/money';
 import { DAYS, addDays, todayKst } from '../lib/time';
+import Facts from '../components/Facts';
+import { ChevronLeft } from 'lucide-react';
 
 
 /** 합주실 찾기 → 방 → 날짜 → 시간 고르기 → 예약. ?date=&hour=&hours=&jam= 으로 미리 채울 수 있다(합주 상세에서). */
@@ -58,7 +60,7 @@ export default function StudioPage() {
     <main className="scr">
       <header className="top pad">
         <div className="between">
-          <button className="btn-ghost" onClick={() => (room ? setRoomId(null) : nav(-1))}>← {room ? '합주실 목록' : band.data?.title ?? '밴드'}</button>
+          <button className="btn-ghost" onClick={() => (room ? setRoomId(null) : nav(-1))}><ChevronLeft aria-hidden size={18} />{room ? '합주실 목록' : band.data?.title ?? '밴드'}</button>
         </div>
         <h1 className="h1">{room ? `${room.studio.name} ${room.name}` : '합주실 예약'}</h1>
         {!room && <p className="sub">예시 합주실이에요. 실제 합주실 예약과는 아직 연결되어 있지 않아요.</p>}
@@ -80,7 +82,7 @@ export default function StudioPage() {
               {s.perks.length > 0 && <div className="row wrap">{s.perks.map((p) => <span key={p} className="tag soft">{p}</span>)}</div>}
               {s.rooms.map((r) => (
                 <button key={r.id} className="room" onClick={() => { setRoomId(r.id); setStart(q.get('hour') ? Number(q.get('hour')) : null); }}>
-                  <span className="room-main"><b>{r.name} · 최대 {r.capacity}명</b><span className="sub">{r.gear}</span></span>
+                  <span className="room-main"><b>{r.name}, 최대 {r.capacity}명</b><span className="sub">{r.gear}</span></span>
                   <span className="room-price">{won(r.pricePerHour)}<span className="sub">/시간</span></span>
                 </button>
               ))}
@@ -93,7 +95,7 @@ export default function StudioPage() {
         <>
           <div className="body pad">
             <section className="card">
-              <span className="sub">{room.studio.station} · {room.gear}</span>
+              <span className="sub"><Facts items={[room.studio.station, room.gear]} /></span>
               <div className="chips" role="group" aria-label="날짜">
                 {Array.from({ length: 14 }, (_, i) => addDays(todayKst(), i)).map((d) => {
                   const dow = DAYS[(new Date(d + 'T00:00:00Z').getUTCDay() + 6) % 7];
@@ -133,7 +135,7 @@ export default function StudioPage() {
             {error && <p className="err-text center-text" role="alert">{error}</p>}
             {valid && (
               <p className="sub center-text">
-                {hourLabel(start!)}–{hourLabel(start! + hours)} · 총 {won(price)} · {people}명이면 1인 <b>{won(perPerson(price, people))}</b>
+                <Facts items={[`${hourLabel(start!)}~${hourLabel(start! + hours)}`, `총 ${won(price)}`, <>{people}명이면 1인 <b>{won(perPerson(price, people))}</b></>]} />
               </p>
             )}
             <button className="cta" disabled={!valid || busy || band.data?.me !== 'HOST'} onClick={submit}>

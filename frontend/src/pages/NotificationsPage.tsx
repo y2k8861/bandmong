@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Bell, CalendarCheck, CalendarClock, CalendarX, DoorOpen, Mail, PartyPopper, PencilLine, UserPlus, type LucideIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getNotifications, readAllNotifications, readNotification } from '../api/notifications';
 import type { NotificationView } from '../api/types';
@@ -6,9 +7,9 @@ import { ago } from '../lib/band';
 import { useStream, useStreamEvent } from '../lib/stream';
 import { useLoad } from '../lib/useLoad';
 
-const ICON: Record<string, string> = {
-  APPLICATION_RECEIVED: '🙋', APPLICATION_ACCEPTED: '🎉', APPLICATION_REJECTED: '📨', MEMBER_LEFT: '👋',
-  JAM_SCHEDULED: '📅', JAM_MOVED: '⏰', JAM_EDITED: '✏️', JAM_CANCELED: '🚫',
+const ICON: Record<string, LucideIcon> = {
+  APPLICATION_RECEIVED: UserPlus, APPLICATION_ACCEPTED: PartyPopper, APPLICATION_REJECTED: Mail, MEMBER_LEFT: DoorOpen,
+  JAM_SCHEDULED: CalendarCheck, JAM_MOVED: CalendarClock, JAM_EDITED: PencilLine, JAM_CANCELED: CalendarX,
 };
 
 export default function NotificationsPage() {
@@ -60,20 +61,23 @@ export default function NotificationsPage() {
           <section className="card empty"><b>아직 알림이 없어요</b><p className="sub">지원 결과, 합주 확정 같은 소식이 여기로 와요.</p></section>
         )}
         {data && data.items.length > 0 && (
-          <ul className="noti-list card">
-            {data.items.map((n) => (
+          <ul className="noti-list">
+            {data.items.map((n) => {
+              const Icon = ICON[n.type] ?? Bell;
+              return (
               <li key={n.id}>
                 <button className={`noti ${n.read ? '' : 'unread'}`} onClick={() => open(n)}>
-                  <span className="ic" aria-hidden>{ICON[n.type] ?? '🔔'}</span>
+                  <span className="ic" aria-hidden><Icon /></span>
                   <span className="txt">
                     <b>{n.title}</b>
                     {n.body && <span className="sub">{n.body}</span>}
                     <span className="when">{ago(n.createdAt)}</span>
                   </span>
-                  {!n.read && <span className="dot" aria-label="안 읽음" />}
+                  {!n.read && <span className="visually-hidden">안 읽음</span>}
                 </button>
               </li>
-            ))}
+              );
+            })}
           </ul>
         )}
         {data?.hasMore && <button className="btn-ghost wide" disabled={more} onClick={loadMore}>{more ? '불러오는 중…' : '더 보기'}</button>}

@@ -5,6 +5,8 @@ import { createJam, getAvailability, saveAvailability } from '../api/jams';
 import JamFormSheet from '../components/JamFormSheet';
 import { useLoad } from '../lib/useLoad';
 import { DAYS, addDays, fmtDateTime, fmtShortDate, slotIso, slotTime, thisMonday } from '../lib/time';
+import Facts from '../components/Facts';
+import { ChevronLeft } from 'lucide-react';
 
 const WEEKS = ['이번 주', '다음 주', '다다음 주'];
 
@@ -65,14 +67,14 @@ export default function SchedulePage() {
     <main className="scr">
       <header className="top pad">
         <div className="between">
-          <button className="btn-ghost" onClick={() => nav(`/bands/${bandId}`)}>← {band.data?.title ?? '밴드'}</button>
+          <button className="btn-ghost" onClick={() => nav(`/bands/${bandId}`)}><ChevronLeft aria-hidden size={18} />{band.data?.title ?? '밴드'}</button>
         </div>
         <h1 className="h1">가능 시간 투표</h1>
         <p className="sub">되는 칸을 눌러 고르고 저장하세요. 진할수록 많이 겹쳐요.</p>
         <div className="chips" role="group" aria-label="주 선택">
           {WEEKS.map((w, i) => (
             <button key={w} className="chip dark" aria-pressed={weekIdx === i} onClick={() => setWeekIdx(i)}>
-              {w} · {fmtShortDate(addDays(thisMonday(), i * 7))}~
+              {w} {fmtShortDate(addDays(thisMonday(), i * 7))}~
             </button>
           ))}
         </div>
@@ -115,10 +117,10 @@ export default function SchedulePage() {
               {data.best.map((b, i) => (
                 <div key={b.slot} className="best">
                   <div>
-                    <b>{i === 0 && '👑 '}{fmtDateTime(b.startsAt)}</b>
-                    <p className="sub">{b.count}/{total}명 · {b.names.join(', ')}</p>
+                    <b>{fmtDateTime(b.startsAt)}</b>
+                    <p className="sub"><Facts items={[`${b.count}/${total}명`, b.names.join(', ')]} /></p>
                   </div>
-                  {isHost && <button className="cta small" onClick={() => setConfirmAt(slotIso(week, b.slot))}>이 시간으로 확정</button>}
+                  {isHost && <button className={i === 0 ? 'cta small' : 'btn-dark'} onClick={() => setConfirmAt(slotIso(week, b.slot))}>이 시간으로 확정</button>}
                 </div>
               ))}
               {!isHost && data.best.length > 0 && <p className="sub">확정은 방장이 해요.</p>}
@@ -128,7 +130,7 @@ export default function SchedulePage() {
               <h2 className="section">투표 현황 <span className="mono">{data.voters.filter((v) => v.voted).length}/{data.voters.length}</span></h2>
               <div className="row wrap">
                 {data.voters.map((v) => (
-                  <span key={v.userId} className={`tag ${v.voted ? '' : 'soft'}`}>{v.nickname}{v.voted ? '' : ' · 아직'}</span>
+                  <span key={v.userId} className={`tag ${v.voted ? '' : 'soft'}`}>{v.nickname}{v.voted ? '' : ' (아직)'}</span>
                 ))}
               </div>
             </section>

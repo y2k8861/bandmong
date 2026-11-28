@@ -47,7 +47,7 @@ export default function BandCreatePage({ me }: { me: Me }) {
   }
 
   return (
-    <main className="scr" style={{ background: 'var(--card)' }}>
+    <main className="scr">
       <header className="top pad row">
         <button className="btn-ghost" onClick={() => nav(-1)}>취소</button>
         <h1 className="h2">밴드 만들기</h1>

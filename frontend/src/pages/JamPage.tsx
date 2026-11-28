@@ -7,6 +7,8 @@ import Sheet from '../components/Sheet';
 import { instrumentName } from '../lib/profile';
 import { ANSWERS, answerName, dday, fmtDateTime, fmtTime, toKstInput } from '../lib/time';
 import { useLoad } from '../lib/useLoad';
+import Facts from '../components/Facts';
+import { ChevronLeft } from 'lucide-react';
 
 export default function JamPage() {
   const id = Number(useParams().id);
@@ -45,14 +47,14 @@ export default function JamPage() {
     <main className="scr">
       <header className="top pad">
         <div className="between">
-          <Link className="btn-ghost" to={`/bands/${jam.bandId}`}>← {jam.bandTitle}</Link>
+          <Link className="btn-ghost" to={`/bands/${jam.bandId}`}><ChevronLeft aria-hidden size={18} />{jam.bandTitle}</Link>
           {jam.host && !locked && <button className="btn-ghost" onClick={() => setSheet('edit')}>바꾸기</button>}
         </div>
+        <h1 className="h1" style={canceled ? { textDecoration: 'line-through', color: 'var(--color-muted)' } : undefined}>{fmtDateTime(jam.startsAt)}~{fmtTime(jam.endsAt)}</h1>
         <div className="row">
           {canceled ? <span className="badge">취소됨</span> : jam.over ? <span className="tag soft">지난 합주</span> : <span className="dday">{dday(jam.startsAt)}</span>}
+          <p className="sub">{jam.place ?? '장소 미정'}</p>
         </div>
-        <h1 className="h1" style={canceled ? { textDecoration: 'line-through', color: 'var(--mute)' } : undefined}>{fmtDateTime(jam.startsAt)}–{fmtTime(jam.endsAt)}</h1>
-        <p className="sub">{jam.place ?? '장소 미정'}</p>
       </header>
 
       <div className="body pad">
@@ -74,7 +76,7 @@ export default function JamPage() {
 
         <section className="card">
           <h2 className="section">멤버 응답
-            <span className="mono">참석 {jam.counts.yes} · 늦음 {jam.counts.late} · 불참 {jam.counts.no}</span>
+            <span className="mono"><Facts items={[`참석 ${jam.counts.yes}`, `늦음 ${jam.counts.late}`, `불참 ${jam.counts.no}`]} /></span>
           </h2>
           {groups.map((g) => {
             const people = (jam.answers ?? []).filter((a) => a.answer === g.key);
@@ -83,7 +85,7 @@ export default function JamPage() {
               <div key={g.label} className="ans-group">
                 <span className={`ans-label ${(g.key ?? 'none').toLowerCase()}`}>{g.label} {people.length}</span>
                 <div className="row wrap">
-                  {people.map((p) => <span key={p.userId} className="tag soft">{p.nickname} · {instrumentName(p.instrument)}</span>)}
+                  {people.map((p) => <span key={p.userId} className="tag soft">{p.nickname} ({instrumentName(p.instrument)})</span>)}
                 </div>
               </div>
             );
@@ -93,7 +95,7 @@ export default function JamPage() {
         {jam.host && !locked && (() => {
           const k = toKstInput(jam.startsAt);
           const q = `date=${k.date}&hour=${Number(k.time.slice(0, 2))}&hours=${Math.max(1, Math.round(jam.durationMinutes / 60))}&jam=${jam.id}`;
-          return <Link className="btn-dark wide" to={`/bands/${jam.bandId}/studio?${q}`}>이 시간으로 합주실 잡기</Link>;
+          return <Link className="cta" to={`/bands/${jam.bandId}/studio?${q}`}>이 시간으로 합주실 잡기</Link>;
         })()}
         {jam.host && !locked && (
           <button className="btn-ghost wide danger-text" onClick={() => setSheet('cancel')}>합주 취소</button>

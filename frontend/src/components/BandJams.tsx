@@ -4,6 +4,7 @@ import { listJams } from '../api/jams';
 import type { JamView } from '../api/types';
 import { answerName, dday, fmtDateTime, fmtTime } from '../lib/time';
 import { useLoad } from '../lib/useLoad';
+import Facts from './Facts';
 
 /** 밴드 상세(멤버용)의 합주 섹션: 예정 합주 + 가능 시간 투표 바로가기 + 지난 합주 */
 export default function BandJams({ bandId, isHost }: { bandId: number; isHost: boolean }) {
@@ -39,8 +40,8 @@ function JamRow({ jam }: { jam: JamView }) {
     <Link to={`/jams/${jam.id}`} className={`jam-row ${canceled ? 'canceled' : ''}`}>
       <span className="dday">{canceled ? '취소' : jam.over ? '지남' : dday(jam.startsAt)}</span>
       <span className="jam-main">
-        <b>{fmtDateTime(jam.startsAt)}–{fmtTime(jam.endsAt)}</b>
-        <span className="sub">{jam.place ?? '장소 미정'} · 참석 {jam.counts.yes}{jam.counts.late ? ` · 늦음 ${jam.counts.late}` : ''}</span>
+        <b>{fmtDateTime(jam.startsAt)}~{fmtTime(jam.endsAt)}</b>
+        <span className="sub"><Facts items={[jam.place ?? '장소 미정', `참석 ${jam.counts.yes}`, jam.counts.late ? `늦음 ${jam.counts.late}` : null]} /></span>
       </span>
       {!canceled && !jam.over && <span className={`my-ans ${jam.myAnswer ? jam.myAnswer.toLowerCase() : 'none'}`}>{answerName(jam.myAnswer)}</span>}
     </Link>
