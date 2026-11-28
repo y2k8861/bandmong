@@ -180,7 +180,7 @@ http.createServer((req, res) => {
   if (url.pathname === '/api/stream') {
     if (!loggedIn) return send(401, {});
     res.writeHead(200, { 'content-type': 'text/event-stream', 'cache-control': 'no-cache' });
-    res.write(': ok\n\n');
+    res.write('event: ready\ndata: {}\n\n');
     const t = setInterval(() => res.write(': ping\n\n'), 15000);
     return req.on('close', () => clearInterval(t));
   }
