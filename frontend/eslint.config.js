@@ -65,6 +65,11 @@ export default tseslint.config(
     rules: { 'no-restricted-imports': 'off' },
   },
   {
+    // 개발 도구 (node로 실행)
+    files: ['tools/**/*.mjs'],
+    languageOptions: { globals: globals.node },
+  },
+  {
     files: ['src/**/*.test.{ts,tsx}'],
     rules: { 'no-restricted-syntax': 'off' },
   },
